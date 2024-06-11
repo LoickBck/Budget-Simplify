@@ -6,7 +6,7 @@ import particulier from '../icons/particulier.svg'
 
 const Home = () => {
   return (
-    <div className="bg-white overflow-hidden">
+    <div className="bg-white overflow-hidden mt-16">
       <div className='grid gap-2 grid-cols-2 bg-primary_light py-20'>
       <div className="text-start p-10 ml-10">
         <h1 className="text-5xl font-bold text-green-900"><span className='text-primary'>Bienvenue</span> dans votre application de <span className='text-primary'>gestion de budget</span></h1>

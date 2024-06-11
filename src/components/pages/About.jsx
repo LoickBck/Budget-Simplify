@@ -10,7 +10,7 @@ import avatar2 from '../../images/avatar2.avif'
 
 const About = () => {
   return (
-    <div className="bg-white">
+    <div className="bg-white mt-16">
       <section className="p-10">
         <div className="text-start mb-10">
           <h2 className="text-md text-primary ml-24 mb-4">Qui sommes-nous ?</h2>
