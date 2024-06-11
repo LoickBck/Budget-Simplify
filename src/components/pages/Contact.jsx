@@ -18,7 +18,7 @@ const Contact = () => {
           <input type="email" placeholder="Email" className="w-full p-3 border border-gray-300 rounded" />
         </div>
         <div>
-          <textarea placeholder="Message..." className="w-full p-3 border border-gray-300 rounded h-32"></textarea>
+          <textarea placeholder="Message..." className="w-full p-3 border border-gray-300 rounded h-[300px]"></textarea>
         </div>
         <div>
           <button type="submit" className="bg-primary text-white px-6 py-3 rounded">Envoyer</button>
