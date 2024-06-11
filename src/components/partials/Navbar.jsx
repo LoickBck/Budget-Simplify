@@ -69,7 +69,7 @@ const Navbar = () => {
             <li><Link className='hover:text-mint flex flex-row items-center' to="/dashboard" onClick={toggleSidebar}><RiDashboardHorizontalFill className='h-4 w-4 mr-3'/>DASHBOARD</Link></li>
             <li><Link className='hover:text-mint flex flex-row items-center' to="/about" onClick={toggleSidebar}><BsInfoSquareFill className='h-4 w-4 mr-3'/>À PROPOS</Link></li>
             <li><Link className='hover:text-mint flex flex-row items-center' to="/blog" onClick={toggleSidebar}><FaBookReader className='h-4 w-4 mr-3'/>BLOG</Link></li>
-            <li><Link className='hover:text-mint flex flex-row items-center' to="/contact" onClick={toggleSidebar}><MdMail className='h-4 w-4 mr-3'/>Contact</Link></li>
+            <li><Link className='hover:text-mint flex flex-row items-center' to="/contact" onClick={toggleSidebar}><MdMail className='h-4 w-4 mr-3'/>CONTACT</Link></li>
           </ul>
           <button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={toggleSidebar}>Connexion</button>
         </div>
