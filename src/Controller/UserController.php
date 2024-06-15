@@ -1,35 +1,34 @@
 <?php
 
-use UserController;
+namespace App\Controller;
+
 use App\Entity\User;
-use App\Form\UserType;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class UserController extends AbstractController
 {
-    /**
-     * @Route("/register", name="user_register")
-     */
-    public function register(Request $request)
+    #[Route('/user/{slug}', name: 'user_show')]
+    public function index(User $user): Response
     {
-        // Logic for registration
+        return $this->render('user/index.html.twig', [
+            'user' => $user
+        ]);
     }
 
     /**
-     * @Route("/login", name="user_login")
+     * Permet d'afficher le profil de l'utilisateur connecté
+     *
+     * @return Response
      */
-    public function login(Request $request)
+    #[Route("/account", name:"account_index")]
+    #[IsGranted('ROLE_USER')]
+    public function myAccount(): Response
     {
-        // Logic for login
-    }
-
-    /**
-     * @Route("/profile", name="user_profile")
-     */
-    public function profile()
-    {
-        // Logic for viewing and updating profile
+        return $this->render('user/index.html.twig', [
+            'user' => $this->getUser()
+        ]);
     }
 }
