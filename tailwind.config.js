@@ -1,8 +1,5 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ['./assets/**/*.{js,jsx,ts,tsx}', './templates/**/*.html.twig'],
   theme: {
     extend: {
       colors: {
@@ -15,7 +12,8 @@ module.exports = {
         mint: '#BAEDBD',
         plant: '#A1E3CB',
         background: '#FFFFFF', 
-        text: '#4D4D4D', 
+        text: '#4D4D4D',
+        'green-400': 'rgba(128, 255, 128, 0.8)',
       },
       screens: {
         'xxs': '280px',
@@ -25,6 +23,18 @@ module.exports = {
         'lg': '1024px',
         'xl': '1280px', 
         '2xl': '1536px',
+      },
+      backgroundImage: {
+        'overlay': "repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%)",
+      },
+      keyframes: {
+        scan: {
+          '0%': { backgroundPosition: '0 -100vh' },
+          '35%, 100%': { backgroundPosition: '0 100vh' },
+        },
+      },
+      animation: {
+        'scan-animation': 'scan 7.5s linear infinite',
       },
     },
   },
