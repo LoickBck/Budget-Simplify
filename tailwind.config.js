@@ -6,6 +6,8 @@ module.exports = {
         primary: '#4CAF4F',
         primary_light: '#DDF1DE',
         secondary: '#263238',
+        third: '#4B5943',
+        four: '#7F9473',
         warning: '#F59E0B',
         neutral: '#F3F4F6', 
         danger: '#A7001E', 

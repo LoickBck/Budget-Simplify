@@ -3,12 +3,11 @@ import Sidebar from '../../components/partials/Sidebar';
 
 const Dashboard = () => {
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 mt-16 2xl:mt-0">
       <Sidebar />
       <div className="flex-grow p-6">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <button className="bg-red-600 text-white px-4 py-2 rounded">Déconnexion</button>
         </header>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -20,7 +19,7 @@ const Dashboard = () => {
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-bold">Total Income</h2>
             <p className="text-2xl">632.000 €</p>
-            <span className="text-red-500">+1.29%</span>
+            <span className="text-red-500">-1.29%</span>
           </div>
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-bold">Total Saving</h2>
@@ -30,7 +29,7 @@ const Dashboard = () => {
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-bold">Total Outcome</h2>
             <p className="text-2xl">632.000 €</p>
-            <span className="text-red-500">+1.29%</span>
+            <span className="text-red-500">-1.29%</span>
           </div>
         </div>
         

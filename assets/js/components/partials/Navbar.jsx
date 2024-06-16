@@ -7,6 +7,7 @@ import { MdMail } from "react-icons/md";
 import { RiDashboardHorizontalFill } from "react-icons/ri";
 import { FaBookReader } from "react-icons/fa";
 import { BsInfoSquareFill } from "react-icons/bs";
+import { useAuth } from '../../context/AuthContext';
 
 
 const Navbar = () => {
@@ -14,6 +15,8 @@ const Navbar = () => {
   const sidebarRef = useRef(null);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  const { isAuthenticated, logout } = useAuth();
 
   const closeSidebarIfOutsideClick = (e) => {
     if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -82,7 +85,7 @@ const Navbar = () => {
             <li><Link className='hover:text-mint flex flex-row items-center' to="/blog" onClick={toggleSidebar}><FaBookReader className='h-4 w-4 mr-3'/>BLOG</Link></li>
             <li><Link className='hover:text-mint flex flex-row items-center' to="/contact" onClick={toggleSidebar}><MdMail className='h-4 w-4 mr-3'/>CONTACT</Link></li>
           </ul>
-          <button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={toggleSidebar}>Connexion</button>
+          <Link to='/api/login'><button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={toggleSidebar}>Connexion</button></Link>
         </div>
       </div>
     </div>

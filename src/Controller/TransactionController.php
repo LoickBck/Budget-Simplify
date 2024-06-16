@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class TransactionController extends AbstractController
 {
-    #[Route('/transaction', name: 'app_transaction')]
+    #[Route('/transactions', name: 'app_transaction')]
     public function index(): Response
     {
         return $this->render('transaction/index.html.twig', [

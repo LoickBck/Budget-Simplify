@@ -2,6 +2,7 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
@@ -9,10 +10,12 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
         admin:
             pattern: ^/admin
             provider: app_user_provider
@@ -26,7 +29,8 @@ security:
             # configure the maximum login attempts
             login_throttling:
                 max_attempts: 3          # per minute ...
-                interval: '15 minutes' # ... or in a custom period   
+                interval: '15 minutes' # ... or in a custom period 
+
         main:
             lazy: true
             provider: app_user_provider
@@ -36,7 +40,7 @@ security:
             logout:
                 path: account_logout
                 target: account_login
-            
+
             # configure the maximum login attempts
             login_throttling:
                 max_attempts: 3          # per minute ...
@@ -51,9 +55,17 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
-         - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/check-auth, roles: PUBLIC_ACCESS }
+        - { path: ^/api/transactions, roles: ROLE_USER }
+        - { path: ^/api/profile, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/dashboard, roles: ROLE_ADMIN }
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
 
 when@test:
     security:

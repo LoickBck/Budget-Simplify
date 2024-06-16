@@ -3,10 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
   return (
-    <div className="h-screen flex flex-col bg-gray-900 text-white">
-      <div className="p-4 text-2xl font-bold">
-        Budget Simplify
-      </div>
+    <div className="h-screen flex flex-col bg-third text-white">
       <nav className="mt-10">
         <ul>
           <li className="mb-4">
@@ -24,7 +21,7 @@ const Sidebar = () => {
           <li className="mb-4">
             <Link to="/projects" className="flex items-center px-4 py-2 text-sm hover:bg-gray-800 rounded">
               <i className="fas fa-folder mr-3"></i>
-              <span>Projets</span>
+              <span>Catégories</span>
             </Link>
           </li>
           <li className="mb-4">
