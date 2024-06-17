@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Alert from '../utils/Alert';
+import { useAuth } from '../../context/AuthContext';
 
 const Registration = ({ isLogin: initialIsLogin }) => {
     const [isLogin, setIsLogin] = useState(initialIsLogin);
@@ -15,6 +16,9 @@ const Registration = ({ isLogin: initialIsLogin }) => {
     });
 
     const [alert, setAlert] = useState(null);
+    const [validationErrors, setValidationErrors] = useState({});
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     useEffect(() => {
         setIsLogin(initialIsLogin);
@@ -40,21 +44,26 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                 credentials: 'include'
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                let errorMessage = 'Un problème est survenu, veuillez réessayer plus tard.';
-                if (errorData.message) {
-                    errorMessage = errorData.message;
+                if (data.errors) {
+                    setValidationErrors(data.errors);
+                } else {
+                    throw new Error(data.message || 'Un problème est survenu, veuillez réessayer plus tard.');
                 }
-                throw new Error(errorMessage);
+                return;
             }
 
-            const data = await response.json();
             if (isLogin) {
                 setAlert({ type: 'success', message: 'Connexion Réussie' });
+                login(data.user); // Met à jour l'état d'authentification avec les informations de l'utilisateur
             } else {
                 setAlert({ type: 'success', message: 'L\'utilisateur a été enregistré avec succès.' });
             }
+            setTimeout(() => {
+                navigate('/');
+            }, 2000);
         } catch (error) {
             console.error('Error:', error);
             setAlert({ type: 'error', message: error.message });
@@ -63,6 +72,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
 
     const handleCloseAlert = () => {
         setAlert(null);
+        setValidationErrors({});
     };
 
     return (
@@ -99,6 +109,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                             onChange={handleChange}
                                             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                         />
+                                        {validationErrors.firstName && <p className="text-red-500 text-xs italic">{validationErrors.firstName}</p>}
                                     </div>
                                 </div>
 
@@ -113,6 +124,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                             onChange={handleChange}
                                             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                         />
+                                        {validationErrors.lastName && <p className="text-red-500 text-xs italic">{validationErrors.lastName}</p>}
                                     </div>
                                 </div>
 
@@ -127,6 +139,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                             onChange={handleChange}
                                             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                         />
+                                        {validationErrors.introduction && <p className="text-red-500 text-xs italic">{validationErrors.introduction}</p>}
                                     </div>
                                 </div>
 
@@ -140,6 +153,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                             onChange={handleChange}
                                             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                         ></textarea>
+                                        {validationErrors.description && <p className="text-red-500 text-xs italic">{validationErrors.description}</p>}
                                     </div>
                                 </div>
                             </>
@@ -157,6 +171,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                     onChange={handleChange}
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                 />
+                                {validationErrors.email && <p className="text-red-500 text-xs italic">{validationErrors.email}</p>}
                             </div>
                         </div>
 
@@ -172,6 +187,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                     onChange={handleChange}
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                 />
+                                {validationErrors.password && <p className="text-red-500 text-xs italic">{validationErrors.password}</p>}
                             </div>
                         </div>
 
@@ -188,6 +204,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                                         onChange={handleChange}
                                         className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                                     />
+                                    {validationErrors.passwordConfirm && <p className="text-red-500 text-xs italic">{validationErrors.passwordConfirm}</p>}
                                 </div>
                             </div>
                         )}

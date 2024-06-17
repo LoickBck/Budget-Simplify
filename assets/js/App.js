@@ -24,7 +24,7 @@ function App() {
             <Route path="*" element={<Error />} />
             <Route path="/" element={<Home />} />
             <Route path="/api/login" element={<Registration isLogin={true} />} />
-            <Route path="/api/register" element={<Registration isLogin={false} />} />
+            <Route path="/api/logout" element={<Registration isLogin={false} />} />
             <Route path="/about" element={<About />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />

@@ -4,13 +4,22 @@ controllers:
 api_register:
     path: /api/register
     controller: App\Controller\AccountController::register
-    methods: POST
+    methods: [POST]
 
 api_login:
     path: /api/login
     controller: App\Controller\AccountController::login
-    methods: POST
-api_check-auth:
+    methods: [POST]
+
+api_logout:
+    path: /api/logout
+    controller: App\Controller\AccountController::logout
+    methods: [POST]
+
+api_check_auth:
     path: /api/check-auth
-    controller: App\Controller\AccountController::check
-    methods: GET
+    methods: [GET]
+    controller: App\Controller\AuthController::checkAuth
+categorie:
+    resource: '../src/Controller/CategoryController.php'
+    type: annotation
