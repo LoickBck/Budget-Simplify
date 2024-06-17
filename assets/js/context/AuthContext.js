@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
+        // Vérifiez l'état d'authentification initial
         const checkAuth = async () => {
             try {
                 const response = await fetch('/api/check-auth', {
@@ -17,10 +18,15 @@ export const AuthProvider = ({ children }) => {
                 if (response.ok) {
                     const data = await response.json();
                     setIsAuthenticated(data.isAuthenticated);
-                    setUser(data.user); // Assurez-vous que votre endpoint /api/check-auth renvoie les informations de l'utilisateur
+                    setUser(data.user);
+                } else {
+                    setIsAuthenticated(false);
+                    setUser(null);
                 }
             } catch (error) {
                 console.error('Erreur lors de la vérification de l\'authentification:', error);
+                setIsAuthenticated(false);
+                setUser(null);
             }
         };
 
@@ -29,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = (userData) => {
         setIsAuthenticated(true);
-        setUser(userData); // Stocker les informations de l'utilisateur après la connexion
+        setUser(userData);
     };
 
     const logout = async () => {
@@ -41,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 setIsAuthenticated(false);
-                setUser(null); // Réinitialiser les informations de l'utilisateur après la déconnexion
+                setUser(null);
             }
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);

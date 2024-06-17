@@ -61,9 +61,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
             } else {
                 setAlert({ type: 'success', message: 'L\'utilisateur a été enregistré avec succès.' });
             }
-            setTimeout(() => {
-                navigate('/');
-            }, 2000);
+            navigate('/'); // Redirection après succès
         } catch (error) {
             console.error('Error:', error);
             setAlert({ type: 'error', message: error.message });

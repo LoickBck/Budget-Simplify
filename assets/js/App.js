@@ -12,6 +12,7 @@ import Blog from './components/pages/Blog';
 import Footer from './components/partials/Footer';
 import Error from './components/pages/Error';
 import '../styles/app.css';
+import Account from './components/pages/Account';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="*" element={<Error />} />
             <Route path="/" element={<Home />} />
             <Route path="/api/login" element={<Registration isLogin={true} />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/api/logout" element={<Registration isLogin={false} />} />
             <Route path="/about" element={<About />} />
             <Route path="/dashboard" element={<Dashboard />} />

@@ -20,6 +20,7 @@ api_check_auth:
     path: /api/check-auth
     methods: [GET]
     controller: App\Controller\AuthController::checkAuth
-categorie:
-    resource: '../src/Controller/CategoryController.php'
-    type: annotation
+account:
+    path: /account
+    controller: App\Controller\AccountController::account
+    methods: [GET, POST]

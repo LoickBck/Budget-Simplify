@@ -7,7 +7,7 @@ const Sidebar = () => {
       <nav className="mt-10">
         <ul>
           <li className="mb-4">
-            <Link to="/" className="flex items-center px-4 py-2 text-sm hover:bg-gray-800 rounded">
+            <Link to="/dashboard" className="flex items-center px-4 py-2 text-sm hover:bg-gray-800 rounded">
               <i className="fas fa-tachometer-alt mr-3"></i>
               <span>Résumé</span>
             </Link>
@@ -25,7 +25,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="mb-4">
-            <Link to="/profile" className="flex items-center px-4 py-2 text-sm hover:bg-gray-800 rounded">
+            <Link to="/account" className="flex items-center px-4 py-2 text-sm hover:bg-gray-800 rounded">
               <i className="fas fa-user mr-3"></i>
               <span>Profil</span>
             </Link>
