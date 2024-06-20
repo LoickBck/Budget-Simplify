@@ -5,7 +5,7 @@ module.exports = {
       colors: {
         primary: '#4CAF4F',
         primary_light: '#DDF1DE',
-        secondary: '#263238',
+        secondary: '#223623',
         third: '#4B5943',
         four: '#7F9473',
         warning: '#F59E0B',
@@ -15,7 +15,6 @@ module.exports = {
         plant: '#A1E3CB',
         background: '#FFFFFF', 
         text: '#4D4D4D',
-        'green-400': 'rgba(128, 255, 128, 0.8)',
       },
       screens: {
         'xxs': '280px',

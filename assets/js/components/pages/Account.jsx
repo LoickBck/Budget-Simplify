@@ -19,7 +19,7 @@ const Account = () => {
 
     useEffect(() => {
         if (!isAuthenticated) {
-            navigate('/api/login');
+            navigate('/login');
         } else {
             fetchUser();
         }
@@ -93,7 +93,7 @@ const Account = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 2xl:mt-0">
+        <div className=" bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
             {alert && <Alert type={alert.type} message={alert.message} onClose={handleCloseAlert} />}
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">

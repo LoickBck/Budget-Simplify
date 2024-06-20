@@ -22,100 +22,89 @@ class CategoryController extends AbstractController
         $this->categoryRepository = $categoryRepository;
     }
 
-    #[Route('/api/categorie', name: 'api_create_category', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-
-            $category = new Category();
-            $category->setName($data['name']);
-            $category->setDescription($data['description'] ?? null);
-
-            $this->entityManager->persist($category);
-            $this->entityManager->flush();
-
-            return new JsonResponse(['message' => 'Catégorie créée avec succès'], Response::HTTP_CREATED);
-        } catch (\Exception $e) {
-            // Enregistrez l'exception dans les logs
-            $this->container->get('logger')->error($e->getMessage());
-
-            // Retournez une réponse d'erreur JSON
-            return new JsonResponse(['message' => 'Une erreur est survenue lors de la création'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    #[Route('/api/categorie', name: 'api_get_category', methods: ['GET'])]
+    #[Route('/categories', name: 'category_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        try {
-            $categorys = $this->categoryRepository->findAll();
+        $user = $this->getUser();
+        $categories = $this->categoryRepository->findBy(['user' => $user]);
 
-            $data = [];
-            foreach ($categorys as $category) {
-                $data[] = [
-                    'id' => $category->getId(),
-                    'name' => $category->getName(),
-                    'description' => $category->getDescription(),
-                ];
-            }
-
-            return new JsonResponse($data);
-        } catch (\Exception $e) {
-            // Enregistrez l'exception dans les logs
-            $this->container->get('logger')->error($e->getMessage());
-
-            // Retournez une réponse d'erreur JSON
-            return new JsonResponse(['message' => 'Une erreur est survenue lors de la récupération des catégories'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        $data = [];
+        foreach ($categories as $category) {
+            $data[] = [
+                'id' => $category->getId(),
+                'name' => $category->getName(),
+                'description' => $category->getDescription(),
+            ];
         }
+
+        return new JsonResponse($data);
     }
 
-    #[Route('/api/categorie/{id}', name: 'api_update_category', methods: ['PUT'])]
+    #[Route('/categories', name: 'category_create', methods: ['POST'])]
+    public function create(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        $data = json_decode($request->getContent(), true);
+
+        $category = new Category();
+        $category->setName($data['name']);
+        $category->setDescription($data['description'] ?? null);
+        $category->setUser($user);
+
+        $this->entityManager->persist($category);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Catégorie créée avec succès'], Response::HTTP_CREATED);
+    }
+
+    #[Route('/categories/{id}', name: 'category_show', methods: ['GET'])]
+    public function show(int $id): JsonResponse
+    {
+        $category = $this->categoryRepository->find($id);
+
+        if (!$category || $category->getUser() !== $this->getUser()) {
+            return new JsonResponse(['message' => 'Catégorie non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = [
+            'id' => $category->getId(),
+            'name' => $category->getName(),
+            'description' => $category->getDescription(),
+        ];
+
+        return new JsonResponse($data);
+    }
+
+    #[Route('/categories/{id}', name: 'category_update', methods: ['PUT'])]
     public function update(int $id, Request $request): JsonResponse
     {
-        try {
-            $category = $this->categoryRepository->find($id);
+        $category = $this->categoryRepository->find($id);
 
-            if (!$category) {
-                return new JsonResponse(['message' => 'Catégorie non trouvée'], Response::HTTP_NOT_FOUND);
-            }
-
-            $data = json_decode($request->getContent(), true);
-            $category->setName($data['name'] ?? $category->getName());
-            $category->setDescription($data['description'] ?? $category->getDescription());
-
-            $this->entityManager->flush();
-
-            return new JsonResponse(['message' => 'Catégorie mise à jour avec succès']);
-        } catch (\Exception $e) {
-            // Enregistrez l'exception dans les logs
-            $this->container->get('logger')->error($e->getMessage());
-
-            // Retournez une réponse d'erreur JSON
-            return new JsonResponse(['message' => 'Une erreur est survenue lors de la mise à jour'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$category || $category->getUser() !== $this->getUser()) {
+            return new JsonResponse(['message' => 'Catégorie non trouvée'], Response::HTTP_NOT_FOUND);
         }
+
+        $data = json_decode($request->getContent(), true);
+        $category->setName($data['name'] ?? $category->getName());
+        $category->setDescription($data['description'] ?? $category->getDescription());
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Catégorie mise à jour avec succès']);
     }
 
-    #[Route('/api/categorie/{id}', name: 'api_delete_category', methods: ['DELETE'])]
+    #[Route('/categories/{id}', name: 'category_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
-        try {
-            $category = $this->categoryRepository->find($id);
+        $category = $this->categoryRepository->find($id);
 
-            if (!$category) {
-                return new JsonResponse(['message' => 'Catégorie non trouvée'], Response::HTTP_NOT_FOUND);
-            }
-
-            $this->entityManager->remove($category);
-            $this->entityManager->flush();
-
-            return new JsonResponse(['message' => 'Catégorie supprimée avec succès']);
-        } catch (\Exception $e) {
-            // Enregistrez l'exception dans les logs
-            $this->container->get('logger')->error($e->getMessage());
-
-            // Retournez une réponse d'erreur JSON
-            return new JsonResponse(['message' => 'Une erreur est survenue lors de la suppression'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$category || $category->getUser() !== $this->getUser()) {
+            return new JsonResponse(['message' => 'Catégorie non trouvée'], Response::HTTP_NOT_FOUND);
         }
+
+        $this->entityManager->remove($category);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Catégorie supprimée avec succès']);
     }
 }

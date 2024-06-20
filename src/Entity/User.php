@@ -61,6 +61,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Category::class)]
+    private $categories;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Budget::class)]
+    private $budgets;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Expense::class)]
+    private $expenses;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Income::class)]
+    private $incomes;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+        $this->budgets = new ArrayCollection();
+        $this->expenses = new ArrayCollection();
+        $this->incomes = new ArrayCollection();
+    }
+
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
     public function initializeSlug(): void
@@ -95,12 +115,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
-    }
-
-    // Ajoutez cette méthode pour compatibilité avec UserInterface
-    public function getUsername(): string
-    {
-        return $this->getUserIdentifier();
     }
 
     public function getRoles(): array
@@ -195,6 +209,110 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+        return $this;
+    }
+
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories[] = $category;
+            $category->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if ($this->categories->removeElement($category)) {
+            if ($category->getUser() === $this) {
+                $category->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBudgets(): Collection
+    {
+        return $this->budgets;
+    }
+
+    public function addBudget(Budget $budget): self
+    {
+        if (!$this->budgets->contains($budget)) {
+            $this->budgets[] = $budget;
+            $budget->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBudget(Budget $budget): self
+    {
+        if ($this->budgets->removeElement($budget)) {
+            if ($budget->getUser() === $this) {
+                $budget->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getExpenses(): Collection
+    {
+        return $this->expenses;
+    }
+
+    public function addExpense(Expense $expense): self
+    {
+        if (!$this->expenses->contains($expense)) {
+            $this->expenses[] = $expense;
+            $expense->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExpense(Expense $expense): self
+    {
+        if ($this->expenses->removeElement($expense)) {
+            if ($expense->getUser() === $this) {
+                $expense->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getIncomes(): Collection
+    {
+        return $this->incomes;
+    }
+
+    public function addIncome(Income $income): self
+    {
+        if (!$this->incomes->contains($income)) {
+            $this->incomes[] = $income;
+            $income->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIncome(Income $income): self
+    {
+        if ($this->incomes->removeElement($income)) {
+            if ($income->getUser() === $this) {
+                $income->setUser(null);
+            }
+        }
+
         return $this;
     }
 }

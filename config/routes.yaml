@@ -1,26 +1,114 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+
 api_register:
-    path: /api/register
+    path: /register
     controller: App\Controller\AccountController::register
     methods: [POST]
 
 api_login:
-    path: /api/login
+    path: /login
     controller: App\Controller\AccountController::login
     methods: [POST]
 
 api_logout:
-    path: /api/logout
+    path: /logout
     controller: App\Controller\AccountController::logout
     methods: [POST]
 
 api_check_auth:
     path: /api/check-auth
-    methods: [GET]
     controller: App\Controller\AuthController::checkAuth
+    methods: [GET]
+
 account:
     path: /account
     controller: App\Controller\AccountController::account
     methods: [GET, POST]
+
+category_index:
+    path: /categories
+    controller: App\Controller\CategoryController::index
+    methods: [GET]
+
+category_create:
+    path: /categories
+    controller: App\Controller\CategoryController::create
+    methods: [POST]
+
+category_show:
+    path: /categories/{id}
+    controller: App\Controller\CategoryController::show
+    methods: [GET]
+
+category_update:
+    path: /categories/{id}
+    controller: App\Controller\CategoryController::update
+    methods: [PUT]
+
+category_delete:
+    path: /categories/{id}
+    controller: App\Controller\CategoryController::delete
+    methods: [DELETE]
+
+budget_index:
+    path: /budgets
+    controller: App\Controller\BudgetController::index
+    methods: [GET]
+
+budget_create:
+    path: /budgets
+    controller: App\Controller\BudgetController::create
+    methods: [POST]
+
+budget_update:
+    path: /budgets/{id}
+    controller: App\Controller\BudgetController::update
+    methods: [PUT]
+
+budget_delete:
+    path: /budgets/{id}
+    controller: App\Controller\BudgetController::delete
+    methods: [DELETE]
+
+expense_index:
+    path: /expenses
+    controller: App\Controller\ExpenseController::index
+    methods: [GET]
+
+expense_create:
+    path: /expenses
+    controller: App\Controller\ExpenseController::create
+    methods: [POST]
+
+expense_update:
+    path: /expenses/{id}
+    controller: App\Controller\ExpenseController::update
+    methods: [PUT]
+
+expense_delete:
+    path: /expenses/{id}
+    controller: App\Controller\ExpenseController::delete
+    methods: [DELETE]
+
+income_index:
+    path: /incomes
+    controller: App\Controller\IncomeController::index
+    methods: [GET]
+
+income_create:
+    path: /incomes
+    controller: App\Controller\IncomeController::create
+    methods: [POST]
+
+income_update:
+    path: /incomes/{id}
+    controller: App\Controller\IncomeController::update
+    methods: [PUT]
+
+income_delete:
+    path: /incomes/{id}
+    controller: App\Controller\IncomeController::delete
+    methods: [DELETE]
+

@@ -3,12 +3,13 @@
 namespace App\Entity;
 
 use App\Entity\User;
+use App\Entity\Income;
+use App\Entity\Expense;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\BudgetRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
-/**
- * @ORM\Entity(repositoryClass=BudgetRepository::class)
- */
+#[ORM\Entity(repositoryClass: "App\Repository\BudgetRepository")]
 class Budget
 {
     #[ORM\Id]
@@ -19,66 +20,69 @@ class Budget
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\Column(type: 'float')]
-    private $amount;
+    #[ORM\Column(type: 'decimal', scale: 2)]
+    private $totalAmount;
 
-    #[ORM\Column(type: 'datetime')]
-    private $createdAt;
-
-    #[ORM\ManyToOne(targetEntity:User::class, inversedBy:"budgets")]
-    #[ORM\JoinColumn(nullable:false)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     private $user;
+
+    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Expense::class)]
+    private $expenses;
+
+    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Income::class)]
+    private $incomes;
+
+    public function __construct()
+    {
+        $this->expenses = new ArrayCollection();
+        $this->incomes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
-        return $id;
+        return $this->id;
     }
 
     public function getName(): ?string
     {
-        return $name;
+        return $this->name;
     }
 
     public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
-    public function getAmount(): ?float
+    public function getTotalAmount(): ?string
     {
-        return $amount;
+        return $this->totalAmount;
     }
 
-    public function setAmount(float $amount): self
+    public function setTotalAmount(string $totalAmount): self
     {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
+        $this->totalAmount = $totalAmount;
         return $this;
     }
 
     public function getUser(): ?User
     {
-        return $user;
+        return $this->user;
     }
 
     public function setUser(?User $user): self
     {
         $this->user = $user;
-
         return $this;
+    }
+
+    public function getExpenses(): Collection
+    {
+        return $this->expenses;
+    }
+
+    public function getIncomes(): Collection
+    {
+        return $this->incomes;
     }
 }

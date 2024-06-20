@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const response = await fetch('/api/logout', {
+            const response = await fetch('/logout', {
                 method: 'POST',
                 credentials: 'include'
             });

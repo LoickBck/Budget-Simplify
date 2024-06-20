@@ -1,97 +1,116 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../../../images/Logo.png';
-import { RxCross1 } from "react-icons/rx";
-import { FaHome } from "react-icons/fa";
-import { MdMail } from "react-icons/md";
-import { RiDashboardHorizontalFill } from "react-icons/ri";
-import { FaBookReader } from "react-icons/fa";
-import { BsInfoSquareFill } from "react-icons/bs";
+import { FaHome, FaBookReader, FaUser } from 'react-icons/fa';
+import { MdMail } from 'react-icons/md';
+import { RiDashboardHorizontalFill } from 'react-icons/ri';
+import { BsInfoSquareFill } from 'react-icons/bs';
+import { TiDelete } from "react-icons/ti";
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const sidebarRef = useRef(null);
+    const [isDashboardOpen, setIsDashboardOpen] = useState(false);
     const { isAuthenticated, user, logout } = useAuth();
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-    const closeSidebarIfOutsideClick = (e) => {
-        if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-            setIsSidebarOpen(false);
-        }
-    };
-
-    useEffect(() => {
-        const handler = () => {
-            if (!isSidebarOpen) {
-                document.addEventListener('click', closeSidebarIfOutsideClick);
-            } else {
-                document.removeEventListener('click', closeSidebarIfOutsideClick);
-            }
-        };
-
-        handler();
-
-        return () => {
-            document.removeEventListener('click', closeSidebarIfOutsideClick);
-        };
-    }, [isSidebarOpen]);
+    const toggleDashboard = () => setIsDashboardOpen(!isDashboardOpen);
 
     return (
         <div className="bg-white">
-            <nav className="bg-white p-4 justify-between items-center shadow hidden 2xl:flex">
-                <Link to={'/'}><img src={Logo} alt="Budget Simplify Logo" /></Link>
-                <ul className="flex space-x-8 text-text">
-                    <li><Link to="/">HOME</Link></li>
-                    <li><Link to="/dashboard">DASHBOARD</Link></li>
-                    <li><Link to="/about">À PROPOS</Link></li>
-                    <li><Link to="/contact">CONTACT</Link></li>
+            <nav className="bg-white p-4 justify-between items-center shadow hidden xl:flex">
+                <Link to={'/'} className="flex items-center">
+                    <span className="ml-2 text-lg font-semibold tracking-widest text-primary">Budget Simplify</span>
+                </Link>
+                <ul className="flex space-x-8 text-primary">
+                    <li className="flex items-center">
+                        <FaHome className="mr-2" />
+                        <Link to="/">HOME</Link>
+                    </li>
+                    <li className="relative">
+                        <button onClick={toggleDashboard} className="flex items-center cursor-pointer hover:bg-primary_light rounded px-4 py-2">
+                            <RiDashboardHorizontalFill className="mr-2" />
+                            <span>BUDGET</span>
+                        </button>
+                        {isDashboardOpen && (
+                            <ul className="absolute top-full left-0 mt-2 bg-white shadow-md rounded-md w-40">
+                                <li className="hover:bg-primary_light rounded">
+                                    <Link to="/dashboard" className="block px-4 py-2">Résumé</Link>
+                                </li>
+                                <li className="hover:bg-primary_light rounded">
+                                    <Link to="/budgets" className="block px-4 py-2">Budget</Link>
+                                </li>
+                                <li className="hover:bg-primary_light rounded">
+                                    <Link to="/categories" className="block px-4 py-2">Catégories</Link>
+                                </li>
+                            </ul>
+                        )}
+                    </li>
+                    <li className="flex items-center">
+                        <BsInfoSquareFill className="mr-2" />
+                        <Link to="/about">À PROPOS</Link>
+                    </li>
+                    <li className="flex items-center">
+                        <MdMail className="mr-2" />
+                        <Link to="/contact">CONTACT</Link>
+                    </li>
+                    <li className="flex items-center">
+                        <FaUser className="mr-2" />
+                        <Link to="/account">PROFIL</Link>
+                    </li>
                 </ul>
                 {isAuthenticated ? (
-                    <>
-                        <span>Bienvenue, {user?.firstName} {user?.lastName}</span>
+                    <div className="flex items-center space-x-4">
                         <button onClick={logout} className="bg-danger text-white px-4 py-2 rounded">Déconnexion</button>
-                    </>
+                    </div>
                 ) : (
-                    <Link to='/api/login'><button className="bg-primary text-white px-4 py-2 rounded">Connexion</button></Link>
+                    <Link to='/login'><button className="bg-primary text-white px-4 py-2 rounded">Connexion</button></Link>
                 )}
             </nav>
-            <div className="fixed top-0 w-full z-50 bg-white shadow visible 2xl:hidden">
+            <div className="fixed top-0 w-full z-50 bg-white shadow xl:hidden">
                 <div className="container mx-auto flex justify-between items-center py-4 px-6">
                     <Link to="/" className='flex items-center'>
-                        <img src={Logo} alt="Budget Simplify Logo" />
+                        <span className="ml-2 text-lg font-semibold tracking-widest text-primary">Budget Simplify</span>
                     </Link>
-                    <div className="flex items-center">
-                        <button onClick={toggleSidebar} className="z-50 focus:outline-none">
-                            <div className="w-10 h-6 flex flex-col justify-between items-center mx-auto">
-                                {/* Barre du haut */}
-                                <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "rotate-45 translate-y-2.5" : "-translate-y-0.5"}`}></div>
-                                {/* Barre du milieu */}
-                                <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "opacity-0" : "opacity-100"}`}></div>
-                                {/* Barre du bas */}
-                                <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "-rotate-45 -translate-y-2.5" : "translate-y-0.5"}`}></div>
-                            </div>
-                        </button>
-                    </div>
+                    <button onClick={toggleSidebar} className="z-50 focus:outline-none">
+                        <div className="w-8 h-4 flex flex-col justify-between items-center">
+                            {/* Barre du haut */}
+                            <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "rotate-45 translate-y-2.5" : "-translate-y-0.5"}`}></div>
+                            {/* Barre du milieu */}
+                            <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "opacity-0" : "opacity-100"}`}></div>
+                            {/* Barre du bas */}
+                            <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "-rotate-45 -translate-y-2.5" : "translate-y-0.5"}`}></div>
+                        </div>
+                    </button>
                 </div>
             </div>
-            <div className={`fixed top-0 right-0 transform ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out bg-secondary text-white w-56 min-h-screen overflow-y-auto z-50`} ref={sidebarRef}>
+            <div className={`fixed top-0 right-0 transform ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out bg-secondary text-white w-56 min-h-screen overflow-y-auto z-50`}>
                 <div className="p-5">
                     <button onClick={toggleSidebar} className="self-end mb-8">
-                        <RxCross1 className='text-red-700 h-6 w-6 hover:text-danger' />
+                        <TiDelete className='text-red-700 h-6 w-6 hover:text-danger' />
                     </button>
                     <ul className="space-y-8 text-primary">
-                        <li><Link className='hover:text-mint flex flex-row items-center' to="/" onClick={toggleSidebar}><FaHome className='h-4 w-4 mr-3' />HOME</Link></li>
-                        <li><Link className='hover:text-mint flex flex-row items-center' to="/dashboard" onClick={toggleSidebar}><RiDashboardHorizontalFill className='h-4 w-4 mr-3' />DASHBOARD</Link></li>
-                        <li><Link className='hover:text-mint flex flex-row items-center' to="/about" onClick={toggleSidebar}><BsInfoSquareFill className='h-4 w-4 mr-3' />À PROPOS</Link></li>
-                        <li><Link className='hover:text-mint flex flex-row items-center' to="/blog" onClick={toggleSidebar}><FaBookReader className='h-4 w-4 mr-3' />BLOG</Link></li>
-                        <li><Link className='hover:text-mint flex flex-row items-center' to="/contact" onClick={toggleSidebar}><MdMail className='h-4 w-4 mr-3' />CONTACT</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/" onClick={toggleSidebar}><FaHome className='mr-3' />HOME</Link></li>
+                        <li className="relative">
+                            <button onClick={toggleDashboard} className='flex flex-row items-center w-full px-4 py-2 hover:bg-primary_light rounded'>
+                                <RiDashboardHorizontalFill className='mr-3' />BUDGET
+                            </button>
+                            {isDashboardOpen && (
+                                <ul className="mt-2 bg-secondary text-primary rounded-md">
+                                    <li className="hover:bg-primary_light rounded"><Link to="/dashboard" className="block px-4 py-2" onClick={toggleSidebar}>Résumé</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/budgets" className="block px-4 py-2" onClick={toggleSidebar}>Budgets</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/categories" className="block px-4 py-2" onClick={toggleSidebar}>Catégories</Link></li>
+                                </ul>
+                            )}
+                        </li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/about" onClick={toggleSidebar}><BsInfoSquareFill className='mr-3' />À PROPOS</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/blog" onClick={toggleSidebar}><FaBookReader className='mr-3' />BLOG</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/contact" onClick={toggleSidebar}><MdMail className='mr-3' />CONTACT</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/account" onClick={toggleSidebar}><FaUser className='mr-3' />PROFIL</Link></li>
                     </ul>
                     {isAuthenticated ? (
                         <button onClick={logout} className="bg-danger text-white px-4 py-2 rounded mt-8">Déconnexion</button>
                     ) : (
-                        <Link to='/api/login'><button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={toggleSidebar}>Connexion</button></Link>
+                        <Link to='/login'><button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={toggleSidebar}>Connexion</button></Link>
                     )}
                 </div>
             </div>

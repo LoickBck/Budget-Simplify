@@ -11,35 +11,37 @@ import Registration from './components/pages/Registration';
 import Blog from './components/pages/Blog';
 import Footer from './components/partials/Footer';
 import Error from './components/pages/Error';
-import '../styles/app.css';
 import Account from './components/pages/Account';
+import Category from './components/pages/Category';
+import Budget from './components/pages/Budget';
+import '../styles/app.css';
 
 function App() {
   return (
     <AuthProvider>
-    <Router>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <div className="flex-grow">
-          <Routes>
-            <Route path="*" element={<Error />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/api/login" element={<Registration isLogin={true} />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/api/logout" element={<Registration isLogin={false} />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            {/* Ajoutez d'autres routes ici si nécessaire */}
-          </Routes>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <div className="flex-grow">
+            <Routes>
+              <Route path="*" element={<Error />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Registration isLogin={true} />} />
+              <Route path="/register" element={<Registration isLogin={false} />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/categories" element={<Category />} />
+              <Route path="/budgets" element={<Budget />} />
+            </Routes>
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
-    </Router>
+      </Router>
     </AuthProvider>
-    
   );
 }
 

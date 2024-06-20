@@ -26,7 +26,7 @@ class AuthController extends AbstractController
                 'authenticated' => true,
                 'user' => [
                     'id' => $user->getId(),
-                    'username' => $user->getUsername(),
+                    'fullname' => $user->getFullName(),
                     'email' => $user->getEmail(),
                 ],
             ]);
@@ -35,3 +35,4 @@ class AuthController extends AbstractController
         }
     }
 }
+

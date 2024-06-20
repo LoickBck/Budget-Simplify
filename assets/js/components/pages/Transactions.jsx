@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Sidebar from '../partials/Sidebar';
 
 const transactions = [
   { date: '03 mai 2024', description: 'Courses', category: 'Alimentation', amount: -247, icon: 'icon-food.png' },
@@ -23,8 +22,7 @@ const Transactions = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-100 mt-16 2xl:mt-0">
-      <Sidebar />
+    <div className="flex h-screen bg-gray-100 mt-16 xl:mt-0">
       <div className="flex-grow p-6">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Transactions</h1>

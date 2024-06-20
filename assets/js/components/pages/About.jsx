@@ -3,7 +3,7 @@ import illustration from '../../../images/budget-illustration.png';
 
 const About = () => {
   return (
-    <div className="bg-white mt-16 2xl:mt-0">
+    <div className="bg-white mt-16 xl:mt-0">
       <section className="p-4 lg:p-10">
         <div className="text-start mb-10">
           <h2 className="text-md lg:text-lg text-primary mb-4">Qui sommes-nous ?</h2>

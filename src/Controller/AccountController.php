@@ -28,7 +28,7 @@ class AccountController extends AbstractController
         $this->security = $security;
     }
 
-    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
     {
         try {
@@ -61,7 +61,7 @@ class AccountController extends AbstractController
         }
     }
 
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    #[Route('/login', name: 'api_login', methods: ['POST'])]
     public function login(AuthenticationUtils $authenticationUtils): JsonResponse
     {
         try {
@@ -76,13 +76,13 @@ class AccountController extends AbstractController
         }
     }
 
-    #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
+    #[Route('/logout', name: 'api_logout', methods: ['POST'])]
     public function logout(): JsonResponse
     {
         return new JsonResponse(['message' => 'Utilisateur déconnecté', 'redirect' => 'homepage']);
     }
 
-    #[Route('/api/update-password', name: 'api_update_password', methods: ['POST'])]
+    #[Route('/update-password', name: 'api_update_password', methods: ['POST'])]
     public function updatePassword(Request $request, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
     {
         try {

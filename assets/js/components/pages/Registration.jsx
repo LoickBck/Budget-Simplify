@@ -33,7 +33,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = isLogin ? '/api/login' : '/api/register';
+        const url = isLogin ? '/login' : '/register';
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -74,7 +74,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 2xl:mt-0">
+        <div className=" bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
             {alert && <Alert type={alert.type} message={alert.message} onClose={handleCloseAlert} />}
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <img className="mx-auto h-10 w-auto" src="https://www.svgrepo.com/show/301692/login.svg" alt="Workflow"/>

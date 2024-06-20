@@ -9,7 +9,7 @@ import avatar2 from '../../../images/avatar2.avif'
 
 const Blog = () => {
     return(
-        <section className="bg-primary_light mt-16 2xl:mt-0">
+        <section className="bg-primary_light mt-16 xl:mt-0">
     <div className="container px-6 py-10 mx-auto">
         <h1 className="text-3xl font-semibold text-primary capitalize lg:text-4xl">Le blog</h1>
 

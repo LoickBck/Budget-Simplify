@@ -17,12 +17,12 @@ security:
             provider: app_user_provider
 
             json_login:
-                check_path: /api/login
+                check_path: /login
                 username_path: email
                 password_path: password
 
             logout:
-                path: /api/logout
+                path: /logout
                 invalidate_session: true
 
     password_hashers:
@@ -30,9 +30,9 @@ security:
             algorithm: auto
 
     access_control:
-        - { path: ^/api/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/logout, roles: PUBLIC_ACCESS }
         - { path: ^/api/check-auth, roles: PUBLIC_ACCESS }
         - { path: ^/api/transactions, roles: ROLE_USER }
         - { path: ^/api/profile, roles: ROLE_USER }
