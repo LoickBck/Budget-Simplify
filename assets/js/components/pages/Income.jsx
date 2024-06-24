@@ -9,7 +9,8 @@ const Income = () => {
         name: '',
         amount: '',
         category: '',
-        isRegular: false
+        isRegular: false,
+        date: ''
     });
     const [isEditing, setIsEditing] = useState(false);
     const [currentIncomeId, setCurrentIncomeId] = useState(null);
@@ -75,7 +76,7 @@ const Income = () => {
             } else {
                 setAlert({ type: 'success', message: isEditing ? 'Revenu mis à jour avec succès' : 'Revenu créé avec succès' });
                 fetchIncomes();
-                setFormData({ name: '', amount: '', category: '', isRegular: false });
+                setFormData({ name: '', amount: '', category: '', isRegular: false, date: '' });
                 setIsEditing(false);
                 setCurrentIncomeId(null);
             }
@@ -90,7 +91,8 @@ const Income = () => {
             name: income.name,
             amount: income.amount,
             category: income.category.id,
-            isRegular: income.isRegular
+            isRegular: income.isRegular,
+            date: income.date
         });
         setIsEditing(true);
         setCurrentIncomeId(income.id);
@@ -155,6 +157,16 @@ const Income = () => {
                         </select>
                     </div>
                     <div className="mb-4">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                            type="datetime-local"
+                            name="date"
+                            value={formData.date}
+                            onChange={handleChange}
+                            className="w-full p-2 border border-gray-300 rounded mt-2"
+                        />
+                    </div>
+                    <div className="mb-4">
                         <label className="block text-gray-700">
                             <input
                                 type="checkbox"
@@ -168,7 +180,7 @@ const Income = () => {
                     </div>
                     <button
                         type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="bg-primary text-white px-4 py-2 rounded hover:bg-green-600"
                     >
                         {isEditing ? 'Mettre à jour le revenu' : 'Ajouter un revenu'}
                     </button>
@@ -181,7 +193,7 @@ const Income = () => {
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <h3 className="text-lg font-bold">{income.name}</h3>
-                                        <p>{income.amount}€ - {income.category.name} - {income.isRegular ? 'Régulier' : 'Exceptionnel'}</p>
+                                        <p>{income.amount}€ - {income.category.name} - {income.isRegular ? 'Régulier' : 'Exceptionnel'} - {income.date}</p>
                                     </div>
                                     <div className="flex space-x-2">
                                         <button

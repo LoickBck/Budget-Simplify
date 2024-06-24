@@ -37,6 +37,9 @@ const Navbar = () => {
                                     <Link to="/dashboard" className="block px-4 py-2">Résumé</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
+                                    <Link to="/transactions" className="block px-4 py-2">Transactions</Link>
+                                </li>
+                                <li className="hover:bg-primary_light rounded">
                                     <Link to="/budgets" className="block px-4 py-2">Budget</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
@@ -97,6 +100,7 @@ const Navbar = () => {
                             {isDashboardOpen && (
                                 <ul className="mt-2 bg-secondary text-primary rounded-md">
                                     <li className="hover:bg-primary_light rounded"><Link to="/dashboard" className="block px-4 py-2" onClick={toggleSidebar}>Résumé</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/transactions" className="block px-4 py-2" onClick={toggleSidebar}>Transactions</Link></li>
                                     <li className="hover:bg-primary_light rounded"><Link to="/budgets" className="block px-4 py-2" onClick={toggleSidebar}>Budgets</Link></li>
                                     <li className="hover:bg-primary_light rounded"><Link to="/categories" className="block px-4 py-2" onClick={toggleSidebar}>Catégories</Link></li>
                                 </ul>

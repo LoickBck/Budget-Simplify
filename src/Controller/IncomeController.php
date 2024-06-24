@@ -40,8 +40,12 @@ class IncomeController extends AbstractController
                 'id' => $income->getId(),
                 'name' => $income->getName(),
                 'amount' => $income->getAmount(),
-                'category' => $income->getCategory()->getName(),
+                'category' => [
+                    'id' => $income->getCategory()->getId(),
+                    'name' => $income->getCategory()->getName()
+                ],
                 'isRegular' => $income->getIsRegular(),
+                'date' => $income->getDate()->format('Y-m-d H:i:s'),
             ];
         }
 
@@ -54,7 +58,7 @@ class IncomeController extends AbstractController
         $user = $this->security->getUser();
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['name'], $data['amount'], $data['category'], $data['isRegular'])) {
+        if (!isset($data['name'], $data['amount'], $data['category'], $data['isRegular'], $data['date'])) {
             return new JsonResponse(['message' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -69,6 +73,7 @@ class IncomeController extends AbstractController
         $income->setCategory($category);
         $income->setUser($user);
         $income->setIsRegular($data['isRegular']);
+        $income->setDate(new \DateTime($data['date']));
 
         $this->entityManager->persist($income);
         $this->entityManager->flush();
@@ -91,6 +96,7 @@ class IncomeController extends AbstractController
             'amount' => $income->getAmount(),
             'category' => $income->getCategory()->getName(),
             'isRegular' => $income->getIsRegular(),
+            'date' => $income->getDate()->format('Y-m-d H:i:s'),
         ];
 
         return new JsonResponse($data);
@@ -121,6 +127,9 @@ class IncomeController extends AbstractController
         }
         if (isset($data['isRegular'])) {
             $income->setIsRegular($data['isRegular']);
+        }
+        if (isset($data['date'])) {
+            $income->setDate(new \DateTime($data['date']));
         }
 
         $this->entityManager->flush();

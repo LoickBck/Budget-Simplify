@@ -9,7 +9,8 @@ const Expense = () => {
         name: '',
         amount: '',
         category: '',
-        isRegular: false
+        isRegular: false,
+        date: ''
     });
     const [isEditing, setIsEditing] = useState(false);
     const [currentExpenseId, setCurrentExpenseId] = useState(null);
@@ -75,7 +76,7 @@ const Expense = () => {
             } else {
                 setAlert({ type: 'success', message: isEditing ? 'Dépense mise à jour avec succès' : 'Dépense créée avec succès' });
                 fetchExpenses();
-                setFormData({ name: '', amount: '', category: '', isRegular: false });
+                setFormData({ name: '', amount: '', category: '', isRegular: false, date: '' });
                 setIsEditing(false);
                 setCurrentExpenseId(null);
             }
@@ -89,8 +90,9 @@ const Expense = () => {
         setFormData({
             name: expense.name,
             amount: expense.amount,
-            category: expense.category.id,
-            isRegular: expense.isRegular
+            category: categories.find(category => category.id === expense.category.id), // Assurez-vous que la catégorie est un objet complet
+            isRegular: expense.isRegular,
+            date: expense.date
         });
         setIsEditing(true);
         setCurrentExpenseId(expense.id);
@@ -144,7 +146,7 @@ const Expense = () => {
                         <label className="block text-gray-700">Catégorie</label>
                         <select
                             name="category"
-                            value={formData.category}
+                            value={formData.category.id}
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded mt-2"
                         >
@@ -153,6 +155,16 @@ const Expense = () => {
                                 <option key={category.id} value={category.id}>{category.name}</option>
                             ))}
                         </select>
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                            type="datetime-local"
+                            name="date"
+                            value={formData.date}
+                            onChange={handleChange}
+                            className="w-full p-2 border border-gray-300 rounded mt-2"
+                        />
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700">
@@ -168,7 +180,7 @@ const Expense = () => {
                     </div>
                     <button
                         type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="bg-primary text-white px-4 py-2 rounded hover:bg-green-600"
                     >
                         {isEditing ? 'Mettre à jour la dépense' : 'Ajouter une dépense'}
                     </button>
@@ -181,7 +193,7 @@ const Expense = () => {
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <h3 className="text-lg font-bold">{expense.name}</h3>
-                                        <p>{expense.amount}€ - {expense.category.name} - {expense.isRegular ? 'Régulière' : 'Exceptionnelle'}</p>
+                                        <p>{expense.amount}€ - {formData.category.name} - {expense.isRegular ? 'Régulière' : 'Exceptionnelle'} - {expense.date}</p>
                                     </div>
                                     <div className="flex space-x-2">
                                         <button

@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\IncomeRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: IncomeRepository::class)]
 class Income
@@ -23,25 +22,25 @@ class Income
     private $category;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank]
     private $name;
 
     #[ORM\Column(type: 'decimal', scale: 2)]
-    #[Assert\NotBlank]
-    #[Assert\Positive]
     private $amount;
+
+    #[ORM\Column(type: 'datetime')]
+    private $date;
 
     #[ORM\Column(type: 'boolean')]
     private $isRegular;
 
     public function getId(): ?int
     {
-        return $id;
+        return $this->id;
     }
 
     public function getUser(): ?User
     {
-        return $user;
+        return $this->user;
     }
 
     public function setUser(?User $user): self
@@ -53,7 +52,7 @@ class Income
 
     public function getCategory(): ?Category
     {
-        return $category;
+        return $this->category;
     }
 
     public function setCategory(?Category $category): self
@@ -65,7 +64,7 @@ class Income
 
     public function getName(): ?string
     {
-        return $name;
+        return $this->name;
     }
 
     public function setName(string $name): self
@@ -77,7 +76,7 @@ class Income
 
     public function getAmount(): ?string
     {
-        return $amount;
+        return $this->amount;
     }
 
     public function setAmount(string $amount): self
@@ -89,12 +88,24 @@ class Income
 
     public function getIsRegular(): ?bool
     {
-        return $isRegular;
+        return $this->isRegular;
     }
 
     public function setIsRegular(bool $isRegular): self
     {
         $this->isRegular = $isRegular;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
 
         return $this;
     }
