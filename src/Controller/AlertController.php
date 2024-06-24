@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Repository\BudgetRepository;
 use App\Repository\ExpenseRepository;
+use App\Repository\IncomeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,14 +11,17 @@ use Symfony\Component\Security\Core\Security;
 
 class AlertController extends AbstractController
 {
-    private $budgetRepository;
     private $expenseRepository;
+    private $incomeRepository;
     private $security;
 
-    public function __construct(BudgetRepository $budgetRepository, ExpenseRepository $expenseRepository, Security $security)
-    {
-        $this->budgetRepository = $budgetRepository;
+    public function __construct(
+        ExpenseRepository $expenseRepository,
+        IncomeRepository $incomeRepository,
+        Security $security
+    ) {
         $this->expenseRepository = $expenseRepository;
+        $this->incomeRepository = $incomeRepository;
         $this->security = $security;
     }
 
@@ -26,19 +29,14 @@ class AlertController extends AbstractController
     public function index(): JsonResponse
     {
         $user = $this->security->getUser();
-        $budgets = $this->budgetRepository->findBy(['user' => $user]);
 
-        $alerts = [];
-        foreach ($budgets as $budget) {
-            $totalExpenses = $this->expenseRepository->getTotalExpensesByBudget($budget);
-            if ($totalExpenses > $budget->getTotalAmount()) {
-                $alerts[] = [
-                    'budget' => $budget->getName(),
-                    'totalAmount' => $budget->getTotalAmount(),
-                    'totalExpenses' => $totalExpenses
-                ];
-            }
-        }
+        $expenses = $this->expenseRepository->findBy(['user' => $user]);
+        $incomes = $this->incomeRepository->findBy(['user' => $user]);
+
+        $alerts = [
+            'expenses' => $expenses,
+            'incomes' => $incomes
+        ];
 
         return new JsonResponse($alerts);
     }

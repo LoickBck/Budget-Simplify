@@ -64,9 +64,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Category::class)]
     private $categories;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Budget::class)]
-    private $budgets;
-
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Expense::class)]
     private $expenses;
 
@@ -76,7 +73,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->categories = new ArrayCollection();
-        $this->budgets = new ArrayCollection();
         $this->expenses = new ArrayCollection();
         $this->incomes = new ArrayCollection();
     }
@@ -232,32 +228,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->categories->removeElement($category)) {
             if ($category->getUser() === $this) {
                 $category->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getBudgets(): Collection
-    {
-        return $this->budgets;
-    }
-
-    public function addBudget(Budget $budget): self
-    {
-        if (!$this->budgets->contains($budget)) {
-            $this->budgets[] = $budget;
-            $budget->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBudget(Budget $budget): self
-    {
-        if ($this->budgets->removeElement($budget)) {
-            if ($budget->getUser() === $this) {
-                $budget->setUser(null);
             }
         }
 

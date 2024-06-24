@@ -102,8 +102,8 @@ class CategoryController extends AbstractController
             return new JsonResponse(['message' => 'Catégorie non trouvée'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->entityManager->remove($category);
-        $this->entityManager->flush();
+        $this->getUser()->removeCategory($category);
+        $this->getUser()->flush();
 
         return new JsonResponse(['message' => 'Catégorie supprimée avec succès']);
     }

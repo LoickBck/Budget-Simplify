@@ -52,26 +52,6 @@ category_delete:
     controller: App\Controller\CategoryController::delete
     methods: [DELETE]
 
-budget_index:
-    path: /budgets
-    controller: App\Controller\BudgetController::index
-    methods: [GET]
-
-budget_create:
-    path: /budgets
-    controller: App\Controller\BudgetController::create
-    methods: [POST]
-
-budget_update:
-    path: /budgets/{id}
-    controller: App\Controller\BudgetController::update
-    methods: [PUT]
-
-budget_delete:
-    path: /budgets/{id}
-    controller: App\Controller\BudgetController::delete
-    methods: [DELETE]
-
 expense_index:
     path: /expenses
     controller: App\Controller\ExpenseController::index
@@ -81,6 +61,11 @@ expense_create:
     path: /expenses
     controller: App\Controller\ExpenseController::create
     methods: [POST]
+
+expense_show:
+    path: /expenses/{id}
+    controller: App\Controller\ExpenseController::show
+    methods: [GET]
 
 expense_update:
     path: /expenses/{id}
@@ -102,6 +87,11 @@ income_create:
     controller: App\Controller\IncomeController::create
     methods: [POST]
 
+income_show:
+    path: /incomes/{id}
+    controller: App\Controller\IncomeController::show
+    methods: [GET]
+
 income_update:
     path: /incomes/{id}
     controller: App\Controller\IncomeController::update
@@ -111,4 +101,3 @@ income_delete:
     path: /incomes/{id}
     controller: App\Controller\IncomeController::delete
     methods: [DELETE]
-
