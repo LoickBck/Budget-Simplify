@@ -13,7 +13,11 @@ const Transactions = () => {
     const [currentTransaction, setCurrentTransaction] = useState(null); // For editing
     const [currentPage, setCurrentPage] = useState(1);
     const [transactionsPerPage] = useState(10); // Transactions per page
+    const [transactionType, setTransactionType] = useState('all'); // Filter for transaction type
+    const [sortField, setSortField] = useState('date'); // Sort field
+    const [sortOrder, setSortOrder] = useState('desc'); // Sort order
     const { isAuthenticated, logout } = useAuth();
+    const [alert, setAlert] = useState(null);
 
     useEffect(() => {
         fetchTransactions();
@@ -21,10 +25,13 @@ const Transactions = () => {
 
     useEffect(() => {
         filterTransactions();
-    }, [search, transactions, currentPage]);
+    }, [search, transactions, transactionType, sortField, sortOrder]);
+
+    useEffect(() => {
+        paginateTransactions();
+    }, [filteredTransactions, currentPage]);
 
     const fetchTransactions = async () => {
-        // Fetch both expenses and incomes
         const expenseResponse = await fetch('/expenses', { method: 'GET', credentials: 'include' });
         const incomeResponse = await fetch('/incomes', { method: 'GET', credentials: 'include' });
         const expenses = await expenseResponse.json();
@@ -33,12 +40,43 @@ const Transactions = () => {
     };
 
     const filterTransactions = () => {
-        const filtered = transactions.filter(transaction =>
+        let filtered = transactions;
+
+        // Filter by transaction type
+        if (transactionType !== 'all') {
+            filtered = filtered.filter(transaction => transaction.type === transactionType);
+        }
+
+        // Filter by search query
+        filtered = filtered.filter(transaction =>
             transaction.name.toLowerCase().includes(search.toLowerCase()) ||
             transaction.category.name.toLowerCase().includes(search.toLowerCase()) ||
             transaction.date.includes(search)
         );
-        setFilteredTransactions(filtered.slice((currentPage - 1) * transactionsPerPage, currentPage * transactionsPerPage));
+
+        // Sort transactions
+        filtered.sort((a, b) => {
+            if (sortField === 'amount') {
+                return sortOrder === 'asc' ? a.amount - b.amount : b.amount - a.amount;
+            } else if (sortField === 'category') {
+                return sortOrder === 'asc'
+                    ? a.category.name.localeCompare(b.category.name)
+                    : b.category.name.localeCompare(a.category.name);
+            } else {
+                return sortOrder === 'asc'
+                    ? new Date(a.date) - new Date(b.date)
+                    : new Date(b.date) - new Date(a.date);
+            }
+        });
+
+        setFilteredTransactions(filtered);
+        setCurrentPage(1); // Reset to the first page when filters change
+    };
+
+    const paginateTransactions = () => {
+        const startIndex = (currentPage - 1) * transactionsPerPage;
+        const endIndex = startIndex + transactionsPerPage;
+        return filteredTransactions.slice(startIndex, endIndex);
     };
 
     const handleSearch = (e) => {
@@ -64,6 +102,9 @@ const Transactions = () => {
         });
         if (response.ok) {
             fetchTransactions();
+            setAlert({ type: 'success', message: 'Transaction supprimée avec succès.' });
+        } else {
+            setAlert({ type: 'error', message: 'Erreur lors de la suppression de la transaction.' });
         }
     };
 
@@ -71,7 +112,17 @@ const Transactions = () => {
         setCurrentPage(pageNumber);
     };
 
+    const handleSortChange = (field) => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortOrder('asc');
+        }
+    };
+
     const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+    const paginatedTransactions = paginateTransactions();
 
     return (
         <div className="flex h-screen bg-gray-100 mt-16 xl:mt-0">
@@ -79,6 +130,9 @@ const Transactions = () => {
                 <header className="flex justify-between items-center mb-8">
                     <h1 className="text-2xl font-bold">Transactions</h1>
                 </header>
+                {alert && (
+                    <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
+                )}
                 <div className="bg-white p-4 rounded shadow mb-8">
                     <div className="flex items-center mb-4">
                         <input
@@ -88,9 +142,42 @@ const Transactions = () => {
                             onChange={handleSearch}
                             className="p-2 border border-gray-300 rounded w-full"
                         />
-                        <button className="bg-green-500 text-white p-2 rounded ml-2">
+                        <button className="bg-primary text-white p-2 rounded ml-2">
                             <i className="fas fa-search"></i>
                         </button>
+                    </div>
+                    <div className="flex justify-between mb-4">
+                        <div className="flex items-center">
+                            <label className="mr-2">Type:</label>
+                            <select
+                                value={transactionType}
+                                onChange={(e) => setTransactionType(e.target.value)}
+                                className="p-2 border border-gray-300 rounded"
+                            >
+                                <option value="all">Tous</option>
+                                <option value="income">Revenu</option>
+                                <option value="expense">Dépense</option>
+                            </select>
+                        </div>
+                        <div className="flex items-center">
+                            <label className="mr-2">Trier par:</label>
+                            <select
+                                value={sortField}
+                                onChange={(e) => setSortField(e.target.value)}
+                                className="p-2 border border-gray-300 rounded"
+                            >
+                                <option value="date">Date</option>
+                                <option value="amount">Montant</option>
+                                <option value="category">Catégorie</option>
+                            </select>
+                            <button onClick={() => handleSortChange(sortField)} className="ml-2 text-primary">
+                                {sortOrder === 'asc' ? (
+                                    <i className="fa-solid fa-arrow-up"></i>
+                                ) : (
+                                    <i className="fa-solid fa-arrow-down"></i>
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <table className="min-w-full bg-white">
                         <thead>
@@ -103,17 +190,17 @@ const Transactions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredTransactions.map((transaction, index) => (
+                            {paginatedTransactions.map((transaction, index) => (
                                 <tr key={index} className="border-t">
                                     <td className="py-2">{transaction.date}</td>
                                     <td className="py-2">{transaction.name}</td>
                                     <td className="py-2">{transaction.category.name}</td>
                                     <td className="py-2">{transaction.type === 'expense' ? `-${transaction.amount}€` : `+${transaction.amount}€`}</td>
                                     <td className="py-2">
-                                        <button className="text-yellow-500 mx-2" onClick={() => handleOpenModal(transaction.type, transaction)}>
+                                        <button className="text-warning mx-2" onClick={() => handleOpenModal(transaction.type, transaction)}>
                                             <i className="fas fa-edit"></i>
                                         </button>
-                                        <button className="text-red-500 mx-2" onClick={() => handleOpenModal('delete', transaction)}>
+                                        <button className="text-danger mx-2" onClick={() => handleOpenModal('delete', transaction)}>
                                             <i className="fas fa-trash"></i>
                                         </button>
                                     </td>
@@ -126,7 +213,7 @@ const Transactions = () => {
                     <div>
                         <button
                             onClick={() => handleOpenModal('transaction')}
-                            className="bg-green-500 text-white px-4 py-2 rounded">
+                            className="bg-primary text-white px-4 py-2 rounded">
                             Ajouter une transaction
                         </button>
                     </div>
@@ -134,21 +221,21 @@ const Transactions = () => {
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="bg-green-500 text-white px-4 py-2 rounded">
+                            className="bg-primary text-white px-4 py-2 rounded">
                             <i className="fas fa-chevron-left"></i>
                         </button>
                         {Array.from({ length: totalPages }, (_, index) => (
                             <button
                                 key={index + 1}
                                 onClick={() => handlePageChange(index + 1)}
-                                className={`bg-green-500 text-white px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-green-700' : ''}`}>
+                                className={`bg-primary text-white px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-green-600' : ''}`}>
                                 {index + 1}
                             </button>
                         ))}
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="bg-green-500 text-white px-4 py-2 rounded">
+                            className="bg-primary text-white px-4 py-2 rounded">
                             <i className="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -169,22 +256,22 @@ const Transactions = () => {
                                 <div className="sm:flex sm:items-start">
                                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                         <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                            {modalType === 'delete' ? 'Confirmer la suppression' : 'Ajouter une transaction'}
+                                            {modalType === 'delete' ? 'Confirmer la suppression' : currentTransaction ? 'Modifier une transaction' : 'Ajouter une transaction'}
                                         </h3>
                                         <div className="mt-2">
                                             {modalType === 'transaction' && (
                                                 <div className="flex justify-around my-4">
-                                                    <button onClick={() => setModalType('income')} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Revenu</button>
-                                                    <button onClick={() => setModalType('expense')} className="bg-red-500 text-white px-4 py-2 rounded">Dépense</button>
+                                                    <button onClick={() => setModalType('income')} className="bg-primary text-white px-4 py-2 rounded mr-2">Revenu</button>
+                                                    <button onClick={() => setModalType('expense')} className="bg-danger text-white px-4 py-2 rounded">Dépense</button>
                                                 </div>
                                             )}
-                                            {modalType === 'income' && <IncomeForm transaction={currentTransaction} fetchTransactions={fetchTransactions} closeModal={handleCloseModal} />}
-                                            {modalType === 'expense' && <ExpenseForm transaction={currentTransaction} fetchTransactions={fetchTransactions} closeModal={handleCloseModal} />}
+                                            {modalType === 'income' && <IncomeForm transaction={currentTransaction} fetchTransactions={fetchTransactions} closeModal={handleCloseModal} setAlert={setAlert} />}
+                                            {modalType === 'expense' && <ExpenseForm transaction={currentTransaction} fetchTransactions={fetchTransactions} closeModal={handleCloseModal} setAlert={setAlert} />}
                                             {modalType === 'delete' && (
                                                 <div>
                                                     <p>Voulez-vous vraiment supprimer cette transaction ?</p>
                                                     <div className="mt-4 flex justify-end">
-                                                        <button onClick={() => handleDeleteTransaction(currentTransaction)} className="bg-red-600 text-white px-4 py-2 rounded mr-2">Supprimer</button>
+                                                        <button onClick={() => handleDeleteTransaction(currentTransaction)} className="bg-danger text-white px-4 py-2 rounded mr-2">Supprimer</button>
                                                         <button onClick={handleCloseModal} className="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
                                                     </div>
                                                 </div>

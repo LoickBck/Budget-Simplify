@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const IncomeForm = ({ transaction, fetchTransactions, closeModal }) => {
+const IncomeForm = ({ transaction, fetchTransactions, closeModal, setAlert }) => {
     const [formData, setFormData] = useState({
         name: '',
         amount: '',
@@ -47,7 +47,10 @@ const IncomeForm = ({ transaction, fetchTransactions, closeModal }) => {
         });
         if (response.ok) {
             fetchTransactions();
+            setAlert({ type: 'success', message: transaction ? 'Revenu modifié avec succès.' : 'Revenu ajouté avec succès.' });
             closeModal();
+        } else {
+            setAlert({ type: 'error', message: 'Erreur lors de l\'enregistrement du revenu.' });
         }
     };
 
@@ -109,7 +112,9 @@ const IncomeForm = ({ transaction, fetchTransactions, closeModal }) => {
                     Revenu régulier
                 </label>
             </div>
-            <button type="submit" className="bg-primary text-white px-4 py-2 rounded hover:bg-green-600">Ajouter un revenu</button>
+            <button type="submit" className={`px-4 py-2 rounded text-white ${transaction ? 'bg-warning' : 'bg-primary'} hover:${transaction ? 'bg-orange-500' : 'bg-green-600'}`}>
+                {transaction ? 'Modifier le revenu' : 'Ajouter un revenu'}
+            </button>
         </form>
     );
 };
