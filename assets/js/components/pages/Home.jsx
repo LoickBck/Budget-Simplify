@@ -4,8 +4,11 @@ import money from '../../../images/money.gif';
 import entreprise from '../icons/entreprise.svg';
 import family from '../icons/family.svg';
 import particulier from '../icons/particulier.svg';
+import { useAuth } from '../../context/AuthContext';
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="bg-white overflow-hidden">
       <div className="grid gap-2 grid-cols-1 lg:grid-cols-2 bg-primary_light py-20 mt-16 xl:mt-0">
@@ -14,7 +17,11 @@ const Home = () => {
             <span className="text-primary">Bienvenue</span> dans votre application de <span className="text-primary">gestion de budget</span>
           </h1>
           <p className="text-gray-700 text-lg md:text-xl mt-8">Oui c'est bien la votre, car c'est votre argent !</p>
-          <Link to='/login'><button className="bg-primary text-white px-6 py-3 rounded mt-8">S'enregistrer</button></Link>
+          {!isAuthenticated && (
+            <Link to='/login'>
+              <button className="bg-primary text-white px-6 py-3 rounded mt-8">S'enregistrer</button>
+            </Link>
+          )}
         </div>
         <div className="flex justify-center items-center mt-10 lg:mt-0 lg:ml-36">
           <img src={money} alt="money" className="rounded-md max-w-[400px] w-3/4 lg:w-full" />

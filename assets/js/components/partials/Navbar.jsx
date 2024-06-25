@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaHome, FaBookReader, FaUser } from 'react-icons/fa';
 import { MdMail } from 'react-icons/md';
 import { RiDashboardHorizontalFill } from 'react-icons/ri';
@@ -10,10 +10,21 @@ import { useAuth } from '../../context/AuthContext';
 const Navbar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDashboardOpen, setIsDashboardOpen] = useState(false);
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
+    const navigate = useNavigate();
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const toggleDashboard = () => setIsDashboardOpen(!isDashboardOpen);
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
+
+    const closeMenus = () => {
+        setIsSidebarOpen(false);
+        setIsDashboardOpen(false);
+    };
 
     return (
         <div className="bg-white">
@@ -24,7 +35,7 @@ const Navbar = () => {
                 <ul className="flex space-x-8 text-primary">
                     <li className="flex items-center">
                         <FaHome className="mr-2" />
-                        <Link to="/">HOME</Link>
+                        <Link to="/" onClick={closeMenus}>HOME</Link>
                     </li>
                     <li className="relative">
                         <button onClick={toggleDashboard} className="flex items-center cursor-pointer hover:bg-primary_light rounded px-4 py-2">
@@ -34,39 +45,39 @@ const Navbar = () => {
                         {isDashboardOpen && (
                             <ul className="absolute top-full left-0 mt-2 bg-white shadow-md rounded-md w-40">
                                 <li className="hover:bg-primary_light rounded">
-                                    <Link to="/dashboard" className="block px-4 py-2">Résumé</Link>
+                                    <Link to="/dashboard" className="block px-4 py-2" onClick={closeMenus}>Résumé</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
-                                    <Link to="/report" className="block px-4 py-2">Rapport</Link>
+                                    <Link to="/report" className="block px-4 py-2" onClick={closeMenus}>Rapport</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
-                                    <Link to="/transactions" className="block px-4 py-2">Transactions</Link>
+                                    <Link to="/transactions" className="block px-4 py-2" onClick={closeMenus}>Transactions</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
-                                    <Link to="/budgets" className="block px-4 py-2">Budget</Link>
+                                    <Link to="/budgets" className="block px-4 py-2" onClick={closeMenus}>Budget</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
-                                    <Link to="/categories" className="block px-4 py-2">Catégories</Link>
+                                    <Link to="/categories" className="block px-4 py-2" onClick={closeMenus}>Catégories</Link>
                                 </li>
                             </ul>
                         )}
                     </li>
                     <li className="flex items-center">
                         <BsInfoSquareFill className="mr-2" />
-                        <Link to="/about">À PROPOS</Link>
+                        <Link to="/about" onClick={closeMenus}>À PROPOS</Link>
                     </li>
                     <li className="flex items-center">
                         <MdMail className="mr-2" />
-                        <Link to="/contact">CONTACT</Link>
+                        <Link to="/contact" onClick={closeMenus}>CONTACT</Link>
                     </li>
                     <li className="flex items-center">
                         <FaUser className="mr-2" />
-                        <Link to="/account">PROFIL</Link>
+                        <Link to="/account" onClick={closeMenus}>PROFIL</Link>
                     </li>
                 </ul>
                 {isAuthenticated ? (
                     <div className="flex items-center space-x-4">
-                        <button onClick={logout} className="bg-danger text-white px-4 py-2 rounded">Déconnexion</button>
+                        <button onClick={handleLogout} className="bg-danger text-white px-4 py-2 rounded">Déconnexion</button>
                     </div>
                 ) : (
                     <Link to='/login'><button className="bg-primary text-white px-4 py-2 rounded">Connexion</button></Link>
@@ -95,30 +106,30 @@ const Navbar = () => {
                         <TiDelete className='text-red-700 h-6 w-6 hover:text-danger' />
                     </button>
                     <ul className="space-y-8 text-primary">
-                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/" onClick={toggleSidebar}><FaHome className='mr-3' />HOME</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/" onClick={closeMenus}><FaHome className='mr-3' />HOME</Link></li>
                         <li className="relative">
                             <button onClick={toggleDashboard} className='flex flex-row items-center w-full px-4 py-2 hover:bg-primary_light rounded'>
                                 <RiDashboardHorizontalFill className='mr-3' />BUDGET
                             </button>
                             {isDashboardOpen && (
                                 <ul className="mt-2 bg-secondary text-primary rounded-md">
-                                    <li className="hover:bg-primary_light rounded"><Link to="/dashboard" className="block px-4 py-2" onClick={toggleSidebar}>Résumé</Link></li>
-                                    <li className="hover:bg-primary_light rounded"><Link to="/report" className="block px-4 py-2" onClick={toggleSidebar}>Rapport</Link></li>
-                                    <li className="hover:bg-primary_light rounded"><Link to="/transactions" className="block px-4 py-2" onClick={toggleSidebar}>Transactions</Link></li>
-                                    <li className="hover:bg-primary_light rounded"><Link to="/budgets" className="block px-4 py-2" onClick={toggleSidebar}>Budgets</Link></li>
-                                    <li className="hover:bg-primary_light rounded"><Link to="/categories" className="block px-4 py-2" onClick={toggleSidebar}>Catégories</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/dashboard" className="block px-4 py-2" onClick={closeMenus}>Résumé</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/report" className="block px-4 py-2" onClick={closeMenus}>Rapport</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/transactions" className="block px-4 py-2" onClick={closeMenus}>Transactions</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/budgets" className="block px-4 py-2" onClick={closeMenus}>Budgets</Link></li>
+                                    <li className="hover:bg-primary_light rounded"><Link to="/categories" className="block px-4 py-2" onClick={closeMenus}>Catégories</Link></li>
                                 </ul>
                             )}
                         </li>
-                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/about" onClick={toggleSidebar}><BsInfoSquareFill className='mr-3' />À PROPOS</Link></li>
-                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/blog" onClick={toggleSidebar}><FaBookReader className='mr-3' />BLOG</Link></li>
-                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/contact" onClick={toggleSidebar}><MdMail className='mr-3' />CONTACT</Link></li>
-                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/account" onClick={toggleSidebar}><FaUser className='mr-3' />PROFIL</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/about" onClick={closeMenus}><BsInfoSquareFill className='mr-3' />À PROPOS</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/blog" onClick={closeMenus}><FaBookReader className='mr-3' />BLOG</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/contact" onClick={closeMenus}><MdMail className='mr-3' />CONTACT</Link></li>
+                        <li className="hover:bg-primary_light rounded"><Link className='flex flex-row items-center px-4 py-2' to="/account" onClick={closeMenus}><FaUser className='mr-3' />PROFIL</Link></li>
                     </ul>
                     {isAuthenticated ? (
-                        <button onClick={logout} className="bg-danger text-white px-4 py-2 rounded mt-8">Déconnexion</button>
+                        <button onClick={handleLogout} className="bg-danger text-white px-4 py-2 rounded mt-8">Déconnexion</button>
                     ) : (
-                        <Link to='/login'><button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={toggleSidebar}>Connexion</button></Link>
+                        <Link to='/login'><button className="bg-primary text-white px-4 py-2 rounded mt-8" onClick={closeMenus}>Connexion</button></Link>
                     )}
                 </div>
             </div>

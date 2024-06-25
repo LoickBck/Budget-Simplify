@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/partials/Navbar';
 import Home from './components/pages/Home';
 import About from './components/pages/About';
@@ -29,15 +29,15 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Registration isLogin={true} />} />
               <Route path="/register" element={<Registration isLogin={false} />} />
-              <Route path="/account" element={<Account />} />
+              <Route path="/account" element={<PrivateRoute><Account /></PrivateRoute>} />
               <Route path="/about" element={<About />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/report" element={<Rapport />} />
-              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/report" element={<PrivateRoute><Rapport /></PrivateRoute>} />
+              <Route path="/transactions" element={<PrivateRoute><Transactions /></PrivateRoute>} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
-              <Route path="/categories" element={<Category />} />
-              <Route path="/budgets" element={<Budget />} />
+              <Route path="/categories" element={<PrivateRoute><Category /></PrivateRoute>} />
+              <Route path="/budgets" element={<PrivateRoute><Budget /></PrivateRoute>} />
             </Routes>
           </div>
           <Footer />
@@ -46,5 +46,15 @@ function App() {
     </AuthProvider>
   );
 }
+
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+};
 
 export default App;
