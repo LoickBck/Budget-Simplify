@@ -26,16 +26,15 @@ class IncomeRepository extends ServiceEntityRepository
      * @param \DateTime $endDate
      * @return Income[]
      */
-    public function findByUserAndDateRange(User $user, \DateTime $startDate, \DateTime $endDate): array
+    public function findByUserAndDateRange($user, \DateTime $start, \DateTime $end)
     {
-        return $this->createQueryBuilder('i')
-            ->andWhere('i.user = :user')
-            ->andWhere('i.date >= :startDate')
-            ->andWhere('i.date < :endDate')
-            ->setParameter('user', $user)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
-            ->getQuery()
-            ->getResult();
+    return $this->createQueryBuilder('i')
+        ->where('i.user = :user')
+        ->andWhere('i.date BETWEEN :start AND :end')
+        ->setParameter('user', $user)
+        ->setParameter('start', $start)
+        ->setParameter('end', $end)
+        ->getQuery()
+        ->getResult();
     }
 }

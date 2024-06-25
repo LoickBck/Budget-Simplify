@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import dayjs from 'dayjs';
 
 Chart.register(...registerables);
 
@@ -10,20 +11,23 @@ const Rapport = () => {
     const [comparisonReport, setComparisonReport] = useState(null);
     const [period1, setPeriod1] = useState({ start: '', end: '' });
     const [period2, setPeriod2] = useState({ start: '', end: '' });
+    const [selectedMonth, setSelectedMonth] = useState(dayjs().format('YYYY-MM'));
+    const [selectedYear, setSelectedYear] = useState(dayjs().format('YYYY'));
+    const chartRef = useRef(null);
 
     useEffect(() => {
-        fetchMonthlyReport();
-        fetchAnnualReport();
-    }, []);
+        fetchMonthlyReport(selectedMonth);
+        fetchAnnualReport(selectedYear);
+    }, [selectedMonth, selectedYear]);
 
-    const fetchMonthlyReport = async () => {
-        const response = await fetch('/report/monthly', { method: 'GET', credentials: 'include' });
+    const fetchMonthlyReport = async (month) => {
+        const response = await fetch(`/report/monthly?month=${month}`, { method: 'GET', credentials: 'include' });
         const data = await response.json();
         setMonthlyReport(data);
     };
 
-    const fetchAnnualReport = async () => {
-        const response = await fetch('/report/annual', { method: 'GET', credentials: 'include' });
+    const fetchAnnualReport = async (year) => {
+        const response = await fetch(`/report/annual?year=${year}`, { method: 'GET', credentials: 'include' });
         const data = await response.json();
         setAnnualReport(data);
     };
@@ -34,41 +38,69 @@ const Rapport = () => {
         setComparisonReport(data);
     };
 
-    const renderChart = (data, title) => {
-        return (
-            <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4">{title}</h3>
-                <Bar
-                    data={{
-                        labels: data.categories.map(cat => cat.name),
-                        datasets: [
-                            {
-                                label: 'Montant',
-                                data: data.categories.map(cat => cat.amount),
-                                backgroundColor: data.categories.map(cat => cat.amount >= 0 ? 'rgba(76, 175, 79, 0.2)' : 'rgba(255, 99, 132, 0.2)'),
-                                borderColor: data.categories.map(cat => cat.amount >= 0 ? 'rgba(76, 175, 79, 1)' : 'rgba(255, 99, 132, 1)'),
-                                borderWidth: 1,
-                            },
-                        ],
-                    }}
-                    options={{
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                            },
-                        },
-                    }}
-                />
-            </div>
-        );
+    const downloadImage = (chart, title) => {
+        const link = document.createElement('a');
+        link.href = chart.toBase64Image();
+        link.download = `${title}.png`;
+        link.click();
     };
+
+    const renderChart = (data, title) => (
+        <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4">{title}</h3>
+            <Bar
+                ref={chartRef}
+                data={{
+                    labels: data.categories.map(cat => cat.name),
+                    datasets: [
+                        {
+                            label: 'Montant',
+                            data: data.categories.map(cat => cat.amount),
+                            backgroundColor: data.categories.map(cat => cat.amount >= 0 ? 'rgba(76, 175, 79, 0.2)' : 'rgba(255, 99, 132, 0.2)'),
+                            borderColor: data.categories.map(cat => cat.amount >= 0 ? 'rgba(76, 175, 79, 1)' : 'rgba(255, 99, 132, 1)'),
+                            borderWidth: 1,
+                        },
+                    ],
+                }}
+                options={{
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                }}
+            />
+            <button onClick={() => downloadImage(chartRef.current, title)} className="bg-primary text-white px-4 py-2 rounded mt-4">Télécharger le rapport</button>
+        </div>
+    );
 
     return (
         <div className="container mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6">Rapport</h1>
 
-            {monthlyReport && renderChart(monthlyReport, 'Rapport Mensuel')}
-            {annualReport && renderChart(annualReport, 'Rapport Annuel')}
+            <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Rapport Mensuel</h3>
+                <input 
+                    type="month" 
+                    value={selectedMonth} 
+                    onChange={(e) => setSelectedMonth(e.target.value)} 
+                    className="p-2 border border-gray-300 rounded mt-2 mb-4" 
+                />
+                {monthlyReport && renderChart(monthlyReport, 'Rapport Mensuel')}
+            </div>
+
+            <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Rapport Annuel</h3>
+                <input 
+                    type="number" 
+                    value={selectedYear} 
+                    onChange={(e) => setSelectedYear(e.target.value)} 
+                    className="p-2 border border-gray-300 rounded mt-2 mb-4" 
+                    min="2000"
+                    max={dayjs().year()}
+                />
+                {annualReport && renderChart(annualReport, 'Rapport Annuel')}
+            </div>
 
             <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-4">Comparer les Périodes</h3>

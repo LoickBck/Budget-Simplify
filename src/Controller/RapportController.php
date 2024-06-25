@@ -31,11 +31,12 @@ class RapportController extends AbstractController
     }
 
     #[Route('/report/monthly', name: 'report_monthly', methods: ['GET'])]
-    public function getMonthlyReport(): JsonResponse
+    public function getMonthlyReport(Request $request): JsonResponse
     {
         $user = $this->security->getUser();
-        $currentMonthStart = new \DateTime('first day of this month');
-        $currentMonthEnd = new \DateTime('first day of next month');
+        $month = $request->query->get('month');
+        $currentMonthStart = new \DateTime("$month-01");
+        $currentMonthEnd = (clone $currentMonthStart)->modify('last day of this month');
 
         $expenses = $this->expenseRepository->findByUserAndDateRange($user, $currentMonthStart, $currentMonthEnd);
         $incomes = $this->incomeRepository->findByUserAndDateRange($user, $currentMonthStart, $currentMonthEnd);
@@ -46,11 +47,12 @@ class RapportController extends AbstractController
     }
 
     #[Route('/report/annual', name: 'report_annual', methods: ['GET'])]
-    public function getAnnualReport(): JsonResponse
+    public function getAnnualReport(Request $request): JsonResponse
     {
         $user = $this->security->getUser();
-        $currentYearStart = new \DateTime('first day of January this year');
-        $currentYearEnd = new \DateTime('first day of January next year');
+        $year = $request->query->get('year');
+        $currentYearStart = new \DateTime("$year-01-01");
+        $currentYearEnd = new \DateTime("$year-12-31");
 
         $expenses = $this->expenseRepository->findByUserAndDateRange($user, $currentYearStart, $currentYearEnd);
         $incomes = $this->incomeRepository->findByUserAndDateRange($user, $currentYearStart, $currentYearEnd);

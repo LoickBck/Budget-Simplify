@@ -26,16 +26,15 @@ class ExpenseRepository extends ServiceEntityRepository
      * @param \DateTime $endDate
      * @return Expense[]
      */
-    public function findByUserAndDateRange(User $user, \DateTime $startDate, \DateTime $endDate): array
+    public function findByUserAndDateRange($user, \DateTime $start, \DateTime $end)
     {
-        return $this->createQueryBuilder('e')
-            ->andWhere('e.user = :user')
-            ->andWhere('e.date >= :startDate')
-            ->andWhere('e.date < :endDate')
-            ->setParameter('user', $user)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
-            ->getQuery()
-            ->getResult();
+    return $this->createQueryBuilder('e')
+        ->where('e.user = :user')
+        ->andWhere('e.date BETWEEN :start AND :end')
+        ->setParameter('user', $user)
+        ->setParameter('start', $start)
+        ->setParameter('end', $end)
+        ->getQuery()
+        ->getResult();
     }
 }
