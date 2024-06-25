@@ -9,6 +9,7 @@ import Dashboard from './components/pages/Dashboard';
 import Transactions from './components/pages/Transactions';
 import Registration from './components/pages/Registration';
 import Blog from './components/pages/Blog';
+import Rapport from './components/pages/Rapport';
 import Footer from './components/partials/Footer';
 import Error from './components/pages/Error';
 import Account from './components/pages/Account';
@@ -31,6 +32,7 @@ function App() {
               <Route path="/account" element={<Account />} />
               <Route path="/about" element={<About />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/report" element={<Rapport />} />
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />

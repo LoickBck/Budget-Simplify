@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Income;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @method Income|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,13 +20,22 @@ class IncomeRepository extends ServiceEntityRepository
         parent::__construct($registry, Income::class);
     }
 
-    public function getTotalIncomesByUser($user)
+    /**
+     * @param User $user
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return Income[]
+     */
+    public function findByUserAndDateRange(User $user, \DateTime $startDate, \DateTime $endDate): array
     {
         return $this->createQueryBuilder('i')
-            ->select('SUM(i.amount)')
-            ->where('i.user = :user')
+            ->andWhere('i.user = :user')
+            ->andWhere('i.date >= :startDate')
+            ->andWhere('i.date < :endDate')
             ->setParameter('user', $user)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getResult();
     }
 }

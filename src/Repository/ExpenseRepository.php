@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Expense;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @method Expense|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,13 +20,22 @@ class ExpenseRepository extends ServiceEntityRepository
         parent::__construct($registry, Expense::class);
     }
 
-    public function getTotalExpensesByUser($user)
+    /**
+     * @param User $user
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return Expense[]
+     */
+    public function findByUserAndDateRange(User $user, \DateTime $startDate, \DateTime $endDate): array
     {
         return $this->createQueryBuilder('e')
-            ->select('SUM(e.amount)')
-            ->where('e.user = :user')
+            ->andWhere('e.user = :user')
+            ->andWhere('e.date >= :startDate')
+            ->andWhere('e.date < :endDate')
             ->setParameter('user', $user)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getResult();
     }
 }
