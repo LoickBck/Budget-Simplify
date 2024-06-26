@@ -2,14 +2,14 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Ad;
-use Faker\Factory;
 use App\Entity\User;
-use App\Entity\Image;
 use App\Entity\Category;
+use App\Entity\Expense;
+use App\Entity\Income;
 use Cocur\Slugify\Slugify;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Faker\Factory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -33,15 +33,15 @@ class AppFixtures extends Fixture
         $defaultUser->setFirstName('Loick')
             ->setLastName('Buck')
             ->setEmail('loickbuck@hotmail.com')
-            ->setIntroduction('Lorem ipsum dolor sit amet') // lorem5
-            ->setDescription('<p>' . join('</p><p>', ['Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit', 'Sed do eiusmod tempor incididunt ut labore', 'Et dolore magna aliqua', 'Ut enim ad minim veniam', 'Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur', 'Excepteur sint occaecat cupidatat non proident', 'Sunt in culpa qui officia deserunt mollit anim id est laborum', 'Curabitur pretium tincidunt lacus']) . '</p>') // lorem10
+            ->setIntroduction('Lorem ipsum dolor sit amet')
+            ->setDescription('Lorem ipsum dolor sit amet, consectetur adipiscing elit')
             ->setPassword($defaultHash)
             ->setPicture('https://picsum.photos/seed/picsum/500/500');
 
         $manager->persist($defaultUser);
 
         // Gestion des utilisateurs aléatoires
-        $users = [$defaultUser]; // Init d'un tableau pour récup des user pour les annonces
+        $users = [$defaultUser];
         $genres = ['homme', 'femme'];
 
         for ($u = 1; $u <= 10; $u++) {
@@ -60,10 +60,11 @@ class AppFixtures extends Fixture
                 ->setPicture($picture);
 
             $manager->persist($user);
-            $users[] = $user; // Ajouter l'utilisateur au tableau des utilisateurs
+            $users[] = $user;
         }
 
         // Gestion des catégories
+        $categoryEntities = [];
         $categories = [
             ['name' => 'Assurance', 'description' => 'Dépenses pour les assurances'],
             ['name' => 'Alimentation', 'description' => 'Dépenses pour la nourriture'],
@@ -86,9 +87,38 @@ class AppFixtures extends Fixture
             $category = new Category();
             $category->setName($catData['name']);
             $category->setDescription($catData['description']);
-            $category->setUser($defaultUser); // Associer chaque catégorie à l'utilisateur par défaut
+            $category->setUser($defaultUser);
 
             $manager->persist($category);
+            $categoryEntities[] = $category;
+        }
+
+        $manager->flush();
+
+        // Ajouter des dépenses
+        for ($i = 0; $i < 90; $i++) {
+            $expense = new Expense();
+            $expense->setName($faker->word())
+                ->setAmount($faker->randomFloat(2, 10, 1000))
+                ->setCategory($faker->randomElement($categoryEntities))
+                ->setUser($defaultUser)
+                ->setIsRegular($faker->boolean())
+                ->setDate($faker->dateTimeBetween('-2 years', 'now'));
+
+            $manager->persist($expense);
+        }
+
+        // Ajouter des revenus
+        for ($i = 0; $i < 30; $i++) {
+            $income = new Income();
+            $income->setName($faker->word())
+                ->setAmount($faker->randomFloat(2, 1000, 5000))
+                ->setCategory($faker->randomElement($categoryEntities))
+                ->setUser($defaultUser)
+                ->setIsRegular($faker->boolean())
+                ->setDate($faker->dateTimeBetween('-2 years', 'now'));
+
+            $manager->persist($income);
         }
 
         $manager->flush();

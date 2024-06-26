@@ -83,6 +83,43 @@ class RapportController extends AbstractController
         return new JsonResponse(['period1' => $report1, 'period2' => $report2]);
     }
 
+    #[Route('/report/overview', name: 'report_overview', methods: ['GET'])]
+    public function getFinancialOverview(Request $request): JsonResponse
+    {
+        $user = $this->security->getUser();
+        $viewType = $request->query->get('viewType');
+        $startDate = new \DateTime('first day of January ' . date('Y'));
+        $endDate = new \DateTime('last day of December ' . date('Y'));
+
+        if ($viewType === 'monthly') {
+            $month = $request->query->get('month');
+            $startDate = new \DateTime("$month-01");
+            $endDate = (clone $startDate)->modify('last day of this month');
+        } elseif ($viewType === 'annual') {
+            $year = $request->query->get('year');
+            $startDate = new \DateTime("first day of January $year");
+            $endDate = new \DateTime("last day of December $year");
+        }
+
+        $expenses = $this->expenseRepository->findRegularAndNonRegularByUserAndDateRange($user, $startDate, $endDate);
+        $incomes = $this->incomeRepository->findRegularAndNonRegularByUserAndDateRange($user, $startDate, $endDate);
+
+        $totalIncome = array_reduce($incomes, fn($sum, $income) => $sum + $income->getAmount(), 0);
+        $totalExpenses = array_reduce($expenses, fn($sum, $expense) => $sum + $expense->getAmount(), 0);
+        $totalSavings = $totalIncome - $totalExpenses;
+
+        $expensesData = $this->generatePieChartData($expenses);
+        $incomeData = $this->generatePieChartData($incomes);
+
+        return new JsonResponse([
+            'totalIncome' => round($totalIncome, 2),
+            'totalExpenses' => round($totalExpenses, 2),
+            'totalSavings' => round($totalSavings, 2),
+            'expensesData' => $expensesData,
+            'incomeData' => $incomeData,
+        ]);
+    }
+
     private function generateReport($expenses, $incomes)
     {
         $totalIncome = array_reduce($incomes, fn($sum, $income) => $sum + $income->getAmount(), 0);
@@ -107,6 +144,33 @@ class RapportController extends AbstractController
             'totalExpense' => $totalExpense,
             'totalSavings' => $totalSavings,
             'categories' => $categoryData
+        ];
+    }
+
+    private function generatePieChartData($items)
+    {
+        $categorySums = [];
+        foreach ($items as $item) {
+            $categoryName = $item->getCategory()->getName();
+            if (!isset($categorySums[$categoryName])) {
+                $categorySums[$categoryName] = 0;
+            }
+            $categorySums[$categoryName] += $item->getAmount();
+        }
+
+        $colors = [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+        ];
+
+        return [
+            'labels' => array_keys($categorySums),
+            'values' => array_map(fn($amount) => round($amount, 2), array_values($categorySums)),
+            'colors' => array_slice($colors, 0, count($categorySums)),
         ];
     }
 }

@@ -285,4 +285,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    public function updatePassword($userId, $newPassword) {
+        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->bind_param('si', $hashedPassword, $userId);
+        return $stmt->execute();
+    }
 }

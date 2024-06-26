@@ -92,7 +92,19 @@ class AccountController extends AbstractController
             }
 
             $data = json_decode($request->getContent(), true);
-            $user->setPassword($passwordHasher->hashPassword($user, $data['newPassword']));
+            $currentPassword = $data['currentPassword'];
+            $newPassword = $data['newPassword'];
+            $confirmPassword = $data['confirmPassword'];
+
+            if ($newPassword !== $confirmPassword) {
+                return new JsonResponse(['message' => 'Les mots de passe ne correspondent pas.'], Response::HTTP_BAD_REQUEST);
+            }
+
+            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                return new JsonResponse(['message' => 'Le mot de passe actuel est incorrect.'], Response::HTTP_UNAUTHORIZED);
+            }
+
+            $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
 
             $errors = $validator->validate($user);
             if (count($errors) > 0) {

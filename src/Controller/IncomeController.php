@@ -76,9 +76,33 @@ class IncomeController extends AbstractController
         $income->setDate(new \DateTime($data['date']));
 
         $this->entityManager->persist($income);
+
+        if ($income->getIsRegular()) {
+            $this->createRecurringIncomes($income);
+        }
+
         $this->entityManager->flush();
 
         return new JsonResponse(['message' => 'Income created successfully'], Response::HTTP_CREATED);
+    }
+
+    private function createRecurringIncomes(Income $income)
+    {
+        $currentDate = new \DateTime($income->getDate()->format('Y-m-d'));
+        $endDate = (clone $currentDate)->add(new \DateInterval('P1Y'));
+
+        $interval = new \DateInterval('P1M');
+        $period = new \DatePeriod($currentDate, $interval, $endDate);
+
+        foreach ($period as $date) {
+            if ($date == $currentDate) {
+                continue;
+            }
+
+            $recurringIncome = clone $income;
+            $recurringIncome->setDate($date);
+            $this->entityManager->persist($recurringIncome);
+        }
     }
 
     #[Route('/incomes/{id}', name: 'income_show', methods: ['GET'])]

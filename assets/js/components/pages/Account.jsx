@@ -12,6 +12,11 @@ const Account = () => {
         introduction: '',
         description: ''
     });
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
     const [alert, setAlert] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const navigate = useNavigate();
@@ -57,6 +62,13 @@ const Account = () => {
         });
     };
 
+    const handlePasswordChange = (e) => {
+        setPasswordData({
+            ...passwordData,
+            [e.target.name]: e.target.value
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -88,12 +100,47 @@ const Account = () => {
         }
     };
 
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            setAlert({ type: 'error', message: 'Les mots de passe ne correspondent pas.' });
+            return;
+        }
+
+        try {
+            const response = await fetch('/update-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(passwordData),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                if (data.errors) {
+                    setAlert({ type: 'error', message: 'Validation errors occurred' });
+                } else {
+                    throw new Error(data.message || 'An error occurred while updating the password.');
+                }
+                return;
+            }
+
+            setAlert({ type: 'success', message: 'Mot de passe mis à jour avec succès' });
+            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (error) {
+            console.error('Error:', error);
+            setAlert({ type: 'error', message: 'Une erreur est survenue lors de la mise à jour du mot de passe.' });
+        }
+    };
+
     const handleCloseAlert = () => {
         setAlert(null);
     };
 
     return (
-        <div className=" bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
+        <div className="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
             {alert && <Alert type={alert.type} message={alert.message} onClose={handleCloseAlert} />}
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
@@ -209,6 +256,62 @@ const Account = () => {
                             )}
                         </div>
                     </form>
+
+                    <div className="mt-8">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Changer le mot de passe</h3>
+                        <form onSubmit={handlePasswordSubmit}>
+                            <div className="mt-6">
+                                <label htmlFor="currentPassword" className="block text-sm font-medium leading-5 text-gray-700">Mot de passe actuel</label>
+                                <div className="mt-1 relative rounded-md shadow-sm">
+                                    <input
+                                        id="currentPassword"
+                                        name="currentPassword"
+                                        type="password"
+                                        value={passwordData.currentPassword}
+                                        onChange={handlePasswordChange}
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <label htmlFor="newPassword" className="block text-sm font-medium leading-5 text-gray-700">Nouveau mot de passe</label>
+                                <div className="mt-1 relative rounded-md shadow-sm">
+                                    <input
+                                        id="newPassword"
+                                        name="newPassword"
+                                        type="password"
+                                        value={passwordData.newPassword}
+                                        onChange={handlePasswordChange}
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium leading-5 text-gray-700">Confirmer le nouveau mot de passe</label>
+                                <div className="mt-1 relative rounded-md shadow-sm">
+                                    <input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type="password"
+                                        value={passwordData.confirmPassword}
+                                        onChange={handlePasswordChange}
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 text-white py-2 px-4 rounded shadow hover:bg-blue-600 focus:outline-none transition ease-in-out duration-150"
+                                >
+                                    Mettre à jour le mot de passe
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

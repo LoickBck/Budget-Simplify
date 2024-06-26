@@ -76,9 +76,33 @@ class ExpenseController extends AbstractController
         $expense->setDate(new \DateTime($data['date']));
 
         $this->entityManager->persist($expense);
+
+        if ($expense->getIsRegular()) {
+            $this->createRecurringExpenses($expense);
+        }
+
         $this->entityManager->flush();
 
         return new JsonResponse(['message' => 'Expense created successfully'], Response::HTTP_CREATED);
+    }
+
+    private function createRecurringExpenses(Expense $expense)
+    {
+        $currentDate = new \DateTime($expense->getDate()->format('Y-m-d'));
+        $endDate = (clone $currentDate)->add(new \DateInterval('P1Y'));
+
+        $interval = new \DateInterval('P1M');
+        $period = new \DatePeriod($currentDate, $interval, $endDate);
+
+        foreach ($period as $date) {
+            if ($date == $currentDate) {
+                continue;
+            }
+
+            $recurringExpense = clone $expense;
+            $recurringExpense->setDate($date);
+            $this->entityManager->persist($recurringExpense);
+        }
     }
 
     #[Route('/expenses/{id}', name: 'expense_show', methods: ['GET'])]
