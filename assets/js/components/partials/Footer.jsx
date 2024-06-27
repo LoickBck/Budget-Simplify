@@ -1,6 +1,7 @@
 import React from 'react';
 import Logo from '../../../images/Logo.png';
 import { CiLocationArrow1 } from "react-icons/ci";
+import { Link } from 'react-router-dom'
 
 const Footer = () => {
   return (
@@ -34,9 +35,11 @@ const Footer = () => {
             <h4 className="font-bold mb-2">Peur d'un oubli ?</h4>
             <form className="flex justify-center md:justify-start">
               <input type="email" placeholder="Votre adresse email" className="p-2 rounded-l-md text-gray-700" />
-              <button type="submit" className="bg-primary text-white p-2 rounded-r-md">
+              <Link to="/admin/login">
+              <button className="bg-primary text-white p-2 rounded-r-md">
               <CiLocationArrow1 className='h-5 w-5' />
               </button>
+              </Link>
             </form>
           </div>
         </div>

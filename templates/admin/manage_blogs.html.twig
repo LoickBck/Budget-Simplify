@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Blogs{% endblock %}
+
+{% block body %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Manage Blogs</h1>
+    <table class="min-w-full bg-white">
+        <thead>
+            <tr>
+                <th class="py-2">Title</th>
+                <th class="py-2">Author</th>
+                <th class="py-2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for blog in blogs %}
+                <tr>
+                    <td class="border px-4 py-2">{{ blog.title }}</td>
+                    <td class="border px-4 py-2">{{ blog.author.email }}</td>
+                    <td class="border px-4 py-2">
+                        <a href="#" class="bg-red-500 text-white px-4 py-2 rounded">Delete</a>
+                        <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -40,6 +40,18 @@ class AppFixtures extends Fixture
 
         $manager->persist($defaultUser);
 
+        // Ajouter un utilisateur administrateur
+        $admin = new User();
+        $admin->setFirstName('Admin')
+            ->setLastName('User')
+            ->setEmail('admin@example.com')
+            ->setRoles(['ROLE_ADMIN'])
+            ->setIntroduction('Admin user introduction')
+            ->setDescription('Admin user description escription scription cription ription iption ption')
+            ->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
+
+        $manager->persist($admin);
+
         // Gestion des utilisateurs aléatoires
         $users = [$defaultUser];
         $genres = ['homme', 'femme'];

@@ -15,10 +15,6 @@ import Error from './components/pages/Error';
 import Account from './components/pages/Account';
 import Category from './components/pages/Category';
 import Budget from './components/pages/Budget';
-import AdminDashboard from './components/admin/AdminDashboard';
-import ManageUsers from './components/admin/ManageUsers';
-import ManageBlogs from './components/admin/ManageBlogs';
-import ManageComments from './components/admin/ManageComments';
 import '../styles/app.css';
 
 function App() {
@@ -42,10 +38,6 @@ function App() {
               <Route path="/blog" element={<Blog />} />
               <Route path="/categories" element={<PrivateRoute><Category /></PrivateRoute>} />
               <Route path="/budgets" element={<PrivateRoute><Budget /></PrivateRoute>} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<ManageUsers />} />
-              <Route path="/admin/blogs" element={<ManageBlogs />} />
-              <Route path="/admin/comments" element={<ManageComments />} />
             </Routes>
           </div>
           <Footer />
