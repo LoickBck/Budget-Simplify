@@ -88,7 +88,7 @@ const Blog = () => {
                             </button>
                         </div>
                     )}
-                    <Comments postId={post.id} />
+                    <Comments postId={post.id} postAuthorEmail={post.author.email} />
                 </div>
             ))}
             {showForm && (
