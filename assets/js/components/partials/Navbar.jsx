@@ -10,11 +10,13 @@ import { useAuth } from '../../context/AuthContext';
 const Navbar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const { isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const toggleDashboard = () => setIsDashboardOpen(!isDashboardOpen);
+    const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
     const handleLogout = async () => {
         await logout();
@@ -24,6 +26,7 @@ const Navbar = () => {
     const closeMenus = () => {
         setIsSidebarOpen(false);
         setIsDashboardOpen(false);
+        setIsProfileMenuOpen(false);
     };
 
     return (
@@ -63,16 +66,27 @@ const Navbar = () => {
                         )}
                     </li>
                     <li className="flex items-center">
-                        <BsInfoSquareFill className="mr-2" />
-                        <Link to="/about" onClick={closeMenus}>À PROPOS</Link>
-                    </li>
-                    <li className="flex items-center">
                         <MdMail className="mr-2" />
                         <Link to="/contact" onClick={closeMenus}>CONTACT</Link>
                     </li>
-                    <li className="flex items-center">
-                        <FaUser className="mr-2" />
-                        <Link to="/account" onClick={closeMenus}>PROFIL</Link>
+                    <li className="relative">
+                        <button onClick={toggleProfileMenu} className="flex items-center cursor-pointer hover:bg-primary_light rounded px-4 py-2">
+                            <FaUser className="mr-2" />
+                            <span>PLUS</span>
+                        </button>
+                        {isProfileMenuOpen && (
+                            <ul className="absolute top-full left-0 mt-2 bg-white shadow-md rounded-md w-40">
+                                <li className="hover:bg-primary_light rounded">
+                                    <Link to="/account" className="block px-4 py-2" onClick={closeMenus}>Profil</Link>
+                                </li>
+                                <li className="hover:bg-primary_light rounded">
+                                    <Link to="/blog" className="block px-4 py-2" onClick={closeMenus}>Blog</Link>
+                                </li>
+                                <li className="hover:bg-primary_light rounded">
+                                    <Link to="/about" className="block px-4 py-2" onClick={closeMenus}>À propos</Link>
+                                </li>
+                            </ul>
+                        )}
                     </li>
                 </ul>
                 {isAuthenticated ? (
@@ -90,11 +104,8 @@ const Navbar = () => {
                     </Link>
                     <button onClick={toggleSidebar} className="z-50 focus:outline-none">
                         <div className="w-8 h-4 flex flex-col justify-between items-center">
-                            {/* Barre du haut */}
                             <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "rotate-45 translate-y-2.5" : "-translate-y-0.5"}`}></div>
-                            {/* Barre du milieu */}
                             <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "opacity-0" : "opacity-100"}`}></div>
-                            {/* Barre du bas */}
                             <div className={`h-1 w-[80%] bg-primary transform transition duration-500 ease-in-out ${isSidebarOpen ? "-rotate-45 -translate-y-2.5" : "translate-y-0.5"}`}></div>
                         </div>
                     </button>

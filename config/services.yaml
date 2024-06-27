@@ -15,3 +15,5 @@ services:
         tags: ['controller.service_arguments']
 
     # add more services here that you need
+parameters:
+    pictures_directory: '%kernel.project_dir%/public/uploads/pictures'

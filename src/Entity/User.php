@@ -12,6 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -21,10 +22,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["blog_post"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\Email(message: "Veuillez renseigner une adresse e-mail valide")]
+    #[Groups(["blog_post"])]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -39,10 +42,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Veuillez renseigner votre prénom")]
+    #[Groups(["blog_post"])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Veuillez renseigner votre nom de famille")]
+    #[Groups(["blog_post"])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -52,6 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Assert\Length(min: 10, max: 255, minMessage: "Votre introduction doit faire plus de 10 caractères", maxMessage: "Votre introduction ne doit pas faire plus de 255 caractères")]
+    #[Groups(["blog_post"])]
     private ?string $introduction = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -70,11 +76,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Income::class)]
     private $incomes;
 
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Comment::class)]
+    private $comments;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->expenses = new ArrayCollection();
         $this->incomes = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -285,10 +295,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-    public function updatePassword($userId, $newPassword) {
-        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
-        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
-        $stmt->bind_param('si', $hashedPassword, $userId);
-        return $stmt->execute();
+
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setAuthor($this);
+        }
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            if ($comment->getAuthor() === $this) {
+                $comment->setAuthor(null);
+            }
+        }
+        return $this;
     }
 }

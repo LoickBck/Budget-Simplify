@@ -101,3 +101,33 @@ income_delete:
     path: /incomes/{id}
     controller: App\Controller\IncomeController::delete
     methods: [DELETE]
+
+blog_index:
+    path: /blog
+    controller: App\Controller\BlogController::index
+    methods: [GET]
+
+blog_new:
+    path: /blog/new
+    controller: App\Controller\BlogController::new
+    methods: [POST]
+
+blog_edit:
+    path: /blog/{id}/edit
+    controller: App\Controller\BlogController::edit
+    methods: [POST]
+
+blog_delete:
+    path: /blog/{id}
+    controller: App\Controller\BlogController::delete
+    methods: [DELETE]
+
+comments:
+    path: /comments/{postId}
+    controller: App\Controller\CommentController::index
+    methods: [GET]
+
+comment_create:
+    path: /comments
+    controller: App\Controller\CommentController::create
+    methods: [POST]
