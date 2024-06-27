@@ -14,7 +14,7 @@ const BlogForm = ({ blog }) => {
         const data = {
             title,
             content,
-            user_id: user.id // Utilisez l'ID de l'utilisateur connecté
+            user_id: user.id 
         };
 
         const url = blog ? `blog/${blog.id}` : '/blog';
