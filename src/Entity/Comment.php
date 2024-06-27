@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\BlogPost;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CommentRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -12,22 +13,25 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["comment", "blog_post"])]
     private $id;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(["comment", "blog_post"])]
     private $content;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["comment"])]
+    #[Groups(["comment", "blog_post"])]
     private $author;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(["comment", "blog_post"])]
     private $createdAt;
 
     #[ORM\ManyToOne(targetEntity: BlogPost::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
-    private $blogPost;
+    private $post;
 
     public function getId(): ?int
     {
@@ -67,14 +71,14 @@ class Comment
         return $this;
     }
 
-    public function getBlogPost(): ?BlogPost
+    public function getPost(): ?BlogPost
     {
-        return $this->blogPost;
+        return $this->post;
     }
 
-    public function setBlogPost(?BlogPost $blogPost): self
+    public function setPost(?BlogPost $post): self
     {
-        $this->blogPost = $blogPost;
+        $this->post = $post;
         return $this;
     }
 }

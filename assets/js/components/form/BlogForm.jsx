@@ -1,96 +1,91 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext'; // Importez votre contexte d'authentification
 
-const BlogForm = ({ post, onClose, onSave }) => {
-    const [title, setTitle] = useState(post ? post.title : '');
-    const [content, setContent] = useState(post ? post.content : '');
-    const [source, setSource] = useState(post ? post.source : '');
-    const { user } = useAuth();
+const BlogForm = ({ blog }) => {
+    const [title, setTitle] = useState(blog ? blog.title : '');
+    const [content, setContent] = useState(blog ? blog.content : '');
+    const navigate = useNavigate();
+    const { user } = useAuth(); // Récupérez les informations de l'utilisateur connecté
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const url = post ? `/blog/${post.id}/edit` : '/blog/new';
-        const method = post ? 'POST' : 'POST';
-        const payload = {
+        const data = {
             title,
             content,
-            source,
-            author: user.email, // Utilisation de l'email pour l'auteur
-            createdAt: post ? post.createdAt : dayjs().toISOString() // Date automatique lors de la création
+            user_id: user.id // Utilisez l'ID de l'utilisateur connecté
         };
+
+        const url = blog ? `blog/${blog.id}` : '/blog';
+        const method = blog ? 'PUT' : 'POST';
 
         try {
             const response = await fetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(data)
             });
 
+            const responseData = await response.json();
+
             if (response.ok) {
-                const data = await response.json();
-                onSave(data);
+                navigate(`/blog/${responseData.id}`);
             } else {
-                const errorData = await response.json();
-                console.error('Erreur:', errorData);
-                alert('Erreur lors de l\'enregistrement du blog');
+                console.error('Erreur lors de l\'enregistrement:', responseData);
             }
         } catch (error) {
-            console.error('Erreur de connexion:', error);
-            alert('Erreur de connexion au serveur');
+            console.error('Erreur:', error);
         }
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-            <div className="bg-white p-8 rounded shadow-md w-1/2">
-                <h2 className="text-2xl font-bold mb-4">{post ? 'Modifier l\'article' : 'Créer un article'}</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Titre</label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Contenu</label>
-                        <textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        ></textarea>
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Source</label>
-                        <input
-                            type="text"
-                            value={source}
-                            onChange={(e) => setSource(e.target.value)}
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        />
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <button
-                            type="submit"
-                            className="bg-primary text-white px-4 py-2 rounded focus:outline-none focus:shadow-outline"
-                        >
-                            Enregistrer
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="bg-gray-500 text-white px-4 py-2 rounded focus:outline-none focus:shadow-outline"
-                        >
-                            Annuler
-                        </button>
-                    </div>
-                </form>
+        <div className="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
+                    {blog ? 'Edit Blog Post' : 'Create New Blog Post'}
+                </h2>
+            </div>
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                    <form onSubmit={handleSubmit}>
+                        <div>
+                            <label htmlFor="title" className="block text-sm font-medium leading-5 text-gray-700">Title</label>
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                                <input
+                                    id="title"
+                                    name="title"
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-6">
+                            <label htmlFor="content" className="block text-sm font-medium leading-5 text-gray-700">Content</label>
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                                <textarea
+                                    id="content"
+                                    name="content"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-6">
+                            <button
+                                type="submit"
+                                className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-indigo active:bg-green-700 transition duration-150 ease-in-out"
+                            >
+                                {blog ? 'Update Post' : 'Create Post'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

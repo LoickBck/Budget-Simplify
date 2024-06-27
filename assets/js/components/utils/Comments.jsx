@@ -1,108 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import dayjs from 'dayjs';
+import { motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext'; // Importez votre contexte d'authentification
 
-const Comments = ({ postId, postAuthorEmail }) => {
+const Comments = ({ blogId }) => {
     const [comments, setComments] = useState([]);
     const [content, setContent] = useState('');
-    const { isAuthenticated, user } = useAuth();
+    const { user } = useAuth(); // Récupérez les informations de l'utilisateur connecté
 
     useEffect(() => {
-        fetchComments();
-    }, []);
-
-    const fetchComments = async () => {
-        try {
-            const response = await fetch(`/comments/${postId}`);
-            const data = await response.json();
-            setComments(data);
-        } catch (error) {
-            console.error('Erreur de récupération des commentaires:', error);
-        }
-    };
+        fetch(`/blogs/${blogId}/comments`)
+            .then(response => response.json())
+            .then(data => setComments(data));
+    }, [blogId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const payload = {
-            content,
-            postId,
-        };
 
         try {
             const response = await fetch('/comments', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({
+                    content,
+                    blog_id: blogId,
+                    user_id: user.id // Utilisez l'ID de l'utilisateur connecté
+                })
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                const newComment = await response.json();
-                setComments([...comments, newComment]);
+                setComments([...comments, data]);
                 setContent('');
             } else {
-                console.error('Erreur lors de l\'ajout du commentaire');
+                console.error('Erreur lors de l\'ajout du commentaire:', data);
             }
         } catch (error) {
-            console.error('Erreur de connexion:', error);
-        }
-    };
-
-    const handleDelete = async (commentId) => {
-        try {
-            const response = await fetch(`/comments/${commentId}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                setComments(comments.filter(comment => comment.id !== commentId));
-            } else {
-                console.error('Erreur lors de la suppression du commentaire');
-            }
-        } catch (error) {
-            console.error('Erreur de connexion:', error);
+            console.error('Erreur:', error);
         }
     };
 
     return (
-        <div className="mt-4">
-            <h3 className="text-lg font-semibold">Commentaires</h3>
-            <div className="space-y-4">
-                {comments.map((comment) => (
-                    <div key={comment.id} className="bg-gray-100 p-4 rounded">
-                        <p>{comment.content}</p>
-                        <p className="text-sm text-gray-500">Auteur: {comment.author.email}</p>
-                        <p className="text-sm text-gray-500">Date: {dayjs(comment.createdAt).format('DD MMMM YYYY')}</p>
-                        {(isAuthenticated && (user.email === comment.author.email || user.email === postAuthorEmail)) && (
-                            <button
-                                className="text-red-500 text-sm"
-                                onClick={() => handleDelete(comment.id)}
-                            >
-                                Supprimer
-                            </button>
-                        )}
-                    </div>
-                ))}
-            </div>
-            {isAuthenticated && (
-                <form onSubmit={handleSubmit} className="mt-4">
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="w-full p-2 border rounded"
-                        rows="4"
-                        placeholder="Ajouter un commentaire"
-                    ></textarea>
-                    <button
-                        type="submit"
-                        className="bg-primary text-white px-4 py-2 rounded mt-2"
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                <h3 className="text-xl leading-9 font-extrabold text-gray-900">Comments</h3>
+                {comments.map(comment => (
+                    <motion.div
+                        key={comment.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="mt-4 bg-gray-50 p-4 rounded-md shadow"
                     >
-                        Envoyer
-                    </button>
+                        <p className="text-gray-800">{comment.content}</p>
+                    </motion.div>
+                ))}
+                <form onSubmit={handleSubmit} className="mt-6">
+                    <div>
+                        <label htmlFor="comment" className="block text-sm font-medium leading-5 text-gray-700">Add a comment</label>
+                        <div className="mt-1 relative rounded-md shadow-sm">
+                            <textarea
+                                id="comment"
+                                name="comment"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                            />
+                        </div>
+                    </div>
+                    <div className="mt-6">
+                        <button
+                            type="submit"
+                            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-indigo active:bg-green-700 transition duration-150 ease-in-out"
+                        >
+                            Add Comment
+                        </button>
+                    </div>
                 </form>
-            )}
+            </div>
         </div>
     );
 };

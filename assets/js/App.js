@@ -15,6 +15,10 @@ import Error from './components/pages/Error';
 import Account from './components/pages/Account';
 import Category from './components/pages/Category';
 import Budget from './components/pages/Budget';
+import TermsOfService from './components/partials/TermsOfService';
+import Legal from './components/partials/Legal';
+import PrivacyPolicy from './components/partials/PrivacyPolicy';
+import BlogDetail from './components/pages/BlogDetail';
 import '../styles/app.css';
 
 function App() {
@@ -38,6 +42,10 @@ function App() {
               <Route path="/blog" element={<Blog />} />
               <Route path="/categories" element={<PrivateRoute><Category /></PrivateRoute>} />
               <Route path="/budgets" element={<PrivateRoute><Budget /></PrivateRoute>} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/legal" element={<Legal />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/blog/:id" element={<BlogDetail />} />
             </Routes>
           </div>
           <Footer />

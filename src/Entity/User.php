@@ -22,15 +22,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["blog_post"])]
+    #[Groups(["blog_post", "user","comment"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\Email(message: "Veuillez renseigner une adresse e-mail valide")]
-    #[Groups(["blog_post"])]
+    #[Groups(["blog_post", "user","comment"])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(["user"])]
     private array $roles = [];
 
     #[ORM\Column]
@@ -42,12 +43,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Veuillez renseigner votre prénom")]
-    #[Groups(["blog_post"])]
+    #[Groups(["blog_post", "user"])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Veuillez renseigner votre nom de famille")]
-    #[Groups(["blog_post"])]
+    #[Groups(["blog_post", "user"])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255, nullable: true)]

@@ -3,27 +3,23 @@
 namespace App\Controller;
 
 use App\Entity\BlogPost;
-use App\Form\BlogPostType;
 use App\Repository\BlogPostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
 
 #[Route('/blog')]
 class BlogController extends AbstractController
 {
     private $entityManager;
     private $blogPostRepository;
-    private $security;
 
-    public function __construct(EntityManagerInterface $entityManager, BlogPostRepository $blogPostRepository, Security $security)
+    public function __construct(EntityManagerInterface $entityManager, BlogPostRepository $blogPostRepository)
     {
         $this->entityManager = $entityManager;
         $this->blogPostRepository = $blogPostRepository;
-        $this->security = $security;
     }
 
     #[Route('/', name: 'blog_index', methods: ['GET'])]
@@ -44,7 +40,6 @@ class BlogController extends AbstractController
                 'createdAt' => $post->getCreatedAt()->format('Y-m-d H:i:s'),
             ];
         }
-
         return $this->json($data, Response::HTTP_OK);
     }
 
@@ -61,7 +56,7 @@ class BlogController extends AbstractController
         $blogPost = new BlogPost();
         $blogPost->setTitle($data['title']);
         $blogPost->setContent($data['content']);
-        $blogPost->setSource($data['source']);
+        $blogPost->setSource($data['source'] ?? '');
         $blogPost->setAuthor($user);
         $blogPost->setCreatedAt(new \DateTime());
 
@@ -81,8 +76,14 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}', name: 'blog_show', methods: ['GET'])]
-    public function show(BlogPost $blogPost): Response
+    public function show(int $id): Response
     {
+        $blogPost = $this->blogPostRepository->find($id);
+
+        if (!$blogPost) {
+            throw $this->createNotFoundException('The blog post does not exist');
+        }
+
         return $this->json([
             'id' => $blogPost->getId(),
             'title' => $blogPost->getTitle(),
@@ -95,7 +96,7 @@ class BlogController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/{id}/edit', name: 'blog_edit', methods: ['POST'])]
+    #[Route('/{id}/edit', name: 'blog_edit', methods: ['PUT'])]
     public function edit(Request $request, BlogPost $blogPost): Response
     {
         $user = $this->getUser();
@@ -107,7 +108,7 @@ class BlogController extends AbstractController
 
         $blogPost->setTitle($data['title']);
         $blogPost->setContent($data['content']);
-        $blogPost->setSource($data['source']);
+        $blogPost->setSource($data['source'] ?? '');
 
         $this->entityManager->flush();
 

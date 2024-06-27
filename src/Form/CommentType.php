@@ -15,6 +15,7 @@ class CommentType extends AbstractType
         $builder
             ->add('content', TextareaType::class, [
                 'label' => 'Commentaire',
+                'attr' => ['rows' => 4, 'class' => 'w-full p-2 border rounded'],
             ]);
     }
 

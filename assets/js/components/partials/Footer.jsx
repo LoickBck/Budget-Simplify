@@ -1,5 +1,4 @@
 import React from 'react';
-import Logo from '../../../images/Logo.png';
 import { CiLocationArrow1 } from "react-icons/ci";
 import { Link } from 'react-router-dom'
 
@@ -9,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-6 md:mb-0">
-            <img src={Logo} alt="Budget Simplify Logo" className="h-10 mb-4" />
+          <span className="ml-2 text-lg font-semibold tracking-widest text-primary">Budget Simplify</span>
             <p className="text-center md:text-left text-sm">
               Copyright ©2024 Budget Simplify.<br /> All rights reserved
             </p>
@@ -25,9 +24,9 @@ const Footer = () => {
             <div className="text-center md:text-left">
               <h4 className="font-bold mb-2">Support</h4>
               <ul>
-                <li><a href="/terms" className="hover:text-primary_light">Terms of service</a></li>
-                <li><a href="/legal" className="hover:text-primary_light">Legal</a></li>
-                <li><a href="/privacy" className="hover:text-primary_light">Privacy policy</a></li>
+                <li><Link to="/terms" className="hover:text-primary_light">Terms of service</Link></li>
+                <li><Link to="/legal" className="hover:text-primary_light">Legal</Link></li>
+                <li><Link to="/privacy" className="hover:text-primary_light">Privacy policy</Link></li>
               </ul>
             </div>
           </div>
@@ -35,11 +34,10 @@ const Footer = () => {
             <h4 className="font-bold mb-2">Peur d'un oubli ?</h4>
             <form className="flex justify-center md:justify-start">
               <input type="email" placeholder="Votre adresse email" className="p-2 rounded-l-md text-gray-700" />
-              <Link to="/admin/login">
               <button className="bg-primary text-white p-2 rounded-r-md">
               <CiLocationArrow1 className='h-5 w-5' />
               </button>
-              </Link>
+
             </form>
           </div>
         </div>

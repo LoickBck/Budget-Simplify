@@ -3,27 +3,27 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
-use App\Entity\BlogPost;
+use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
 
+#[Route('/comments')]
 class CommentController extends AbstractController
 {
     private $entityManager;
-    private $security;
+    private $commentRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, Security $security)
+    public function __construct(EntityManagerInterface $entityManager, CommentRepository $commentRepository)
     {
         $this->entityManager = $entityManager;
-        $this->security = $security;
+        $this->commentRepository = $commentRepository;
     }
 
-    #[Route('/comments', name: 'comment_create', methods: ['POST'])]
-    public function create(Request $request): Response
+    #[Route('/', name: 'comment_new', methods: ['POST'])]
+    public function new(Request $request): Response
     {
         $user = $this->getUser();
         if (!$user) {
@@ -32,15 +32,10 @@ class CommentController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        $blogPost = $this->entityManager->getRepository(BlogPost::class)->find($data['postId']);
-        if (!$blogPost) {
-            return $this->json(['message' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
-        }
-
         $comment = new Comment();
         $comment->setContent($data['content']);
-        $comment->setAuthor($user);
-        $comment->setBlogPost($blogPost);
+        $comment->setBlogId($data['blog_id']);
+        $comment->setUserId($user->getId());
         $comment->setCreatedAt(new \DateTime());
 
         $this->entityManager->persist($comment);
@@ -49,43 +44,52 @@ class CommentController extends AbstractController
         return $this->json([
             'id' => $comment->getId(),
             'content' => $comment->getContent(),
-            'author' => [
-                'email' => $user->getEmail(),
-            ],
+            'blog_id' => $comment->getBlogId(),
+            'user_id' => $comment->getUserId(),
             'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
         ], Response::HTTP_CREATED);
     }
 
-    #[Route('/comments/{postId<\d+>}', name: 'comment_index', methods: ['GET'])]
-    public function index(int $postId): Response
+    #[Route('/{id}', name: 'comment_show', methods: ['GET'])]
+    public function show(Comment $comment): Response
     {
-        $blogPost = $this->entityManager->getRepository(BlogPost::class)->find($postId);
-        if (!$blogPost) {
-            return $this->json(['message' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $comments = $blogPost->getComments();
-
-        $data = [];
-        foreach ($comments as $comment) {
-            $data[] = [
-                'id' => $comment->getId(),
-                'content' => $comment->getContent(),
-                'author' => [
-                    'email' => $comment->getAuthor()->getEmail(),
-                ],
-                'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
-            ];
-        }
-
-        return $this->json($data, Response::HTTP_OK);
+        return $this->json([
+            'id' => $comment->getId(),
+            'content' => $comment->getContent(),
+            'blog_id' => $comment->getBlogId(),
+            'user_id' => $comment->getUserId(),
+            'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+        ], Response::HTTP_OK);
     }
 
-    #[Route('/comments/{id}', name: 'comment_delete', methods: ['DELETE'])]
+    #[Route('/{id}/edit', name: 'comment_edit', methods: ['PUT'])]
+    public function edit(Request $request, Comment $comment): Response
+    {
+        $user = $this->getUser();
+        if ($comment->getUserId() !== $user->getId()) {
+            return $this->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $comment->setContent($data['content']);
+
+        $this->entityManager->flush();
+
+        return $this->json([
+            'id' => $comment->getId(),
+            'content' => $comment->getContent(),
+            'blog_id' => $comment->getBlogId(),
+            'user_id' => $comment->getUserId(),
+            'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+        ], Response::HTTP_OK);
+    }
+
+    #[Route('/{id}', name: 'comment_delete', methods: ['DELETE'])]
     public function delete(Comment $comment): Response
     {
         $user = $this->getUser();
-        if ($comment->getAuthor() !== $user && $comment->getBlogPost()->getAuthor() !== $user) {
+        if ($comment->getUserId() !== $user->getId()) {
             return $this->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
         }
 

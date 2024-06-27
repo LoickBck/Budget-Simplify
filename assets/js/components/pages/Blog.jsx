@@ -1,103 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import BlogForm from '../form/BlogForm';
-import Comments from '../utils/Comments';
-import { useAuth } from '../../context/AuthContext';
-import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Blog = () => {
-    const [posts, setPosts] = useState([]);
-    const [currentPost, setCurrentPost] = useState(null);
-    const [showForm, setShowForm] = useState(false);
-    const { isAuthenticated, user } = useAuth();
+    const [blogs, setBlogs] = useState([]);
 
     useEffect(() => {
-        fetchPosts();
+        fetch('/blog')
+            .then(response => response.json())
+            .then(data => setBlogs(data));
     }, []);
 
-    const fetchPosts = async () => {
-        try {
-            const response = await fetch('/blog');
-            const data = await response.json();
-            setPosts(data);
-        } catch (error) {
-            console.error('Erreur de récupération des articles:', error);
-        }
-    };
-
-    const handleCreate = () => {
-        setCurrentPost(null);
-        setShowForm(true);
-    };
-
-    const handleEdit = (post) => {
-        setCurrentPost(post);
-        setShowForm(true);
-    };
-
-    const handleDelete = async (postId) => {
-        try {
-            const response = await fetch(`/blog/${postId}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                fetchPosts();
-            } else {
-                console.error('Erreur lors de la suppression de l\'article');
-            }
-        } catch (error) {
-            console.error('Erreur de connexion:', error);
-        }
-    };
-
-    const handleSave = () => {
-        setShowForm(false);
-        fetchPosts();
-    };
-
     return (
-        <div className="container mx-auto p-4 mt-16 xl:mt-0">
-            {isAuthenticated && (
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded mb-4"
-                    onClick={handleCreate}
+        <div className="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
+            <h1 className="text-center text-3xl font-extrabold text-gray-900 mb-8">Le Blog</h1>
+            {blogs.map(blog => (
+                <motion.div
+                    key={blog.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-white shadow overflow-hidden sm:rounded-lg mb-6 p-6"
                 >
-                    Créer un article
-                </button>
-            )}
-            {posts.map((post) => (
-                <div key={post.id} className="bg-white shadow-md rounded p-4 mb-4">
-                    <h2 className="text-2xl font-bold">{post.title}</h2>
-                    <p className="text-gray-700">{post.content}</p>
-                    <p className="text-sm text-gray-500">Source: {post.source}</p>
-                    <p className="text-sm text-gray-500">Auteur: {post.author.email}</p>
-                    <p className="text-sm text-gray-500">Date: {dayjs(post.createdAt).format('DD MMMM YYYY')}</p>
-                    {isAuthenticated && user && user.email === post.author.email && (
-                        <div className="flex justify-end mt-4">
-                            <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                                onClick={() => handleEdit(post)}
-                            >
-                                Modifier
-                            </button>
-                            <button
-                                className="bg-red-500 text-white px-4 py-2 rounded"
-                                onClick={() => handleDelete(post.id)}
-                            >
-                                Supprimer
-                            </button>
-                        </div>
-                    )}
-                    <Comments postId={post.id} postAuthorEmail={post.author.email} />
-                </div>
+                    <h2 className="text-xl font-semibold text-gray-800">{blog.title}</h2>
+                    <p className="mt-2 text-gray-600">{blog.content.substring(0, 100)}...</p>
+                    <Link to={`/blog/${blog.id}`} className="text-primary hover:text-green-500 mt-4 block">En savoir plus</Link>
+                </motion.div>
             ))}
-            {showForm && (
-                <BlogForm
-                    post={currentPost}
-                    onClose={() => setShowForm(false)}
-                    onSave={handleSave}
-                />
-            )}
         </div>
     );
 };

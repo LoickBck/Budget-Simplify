@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
+use App\Entity\Comment;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\BlogPostRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
@@ -14,12 +16,15 @@ class BlogPost
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["blog_post"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["blog_post"])]
     private $title;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(["blog_post"])]
     private $content;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -28,17 +33,21 @@ class BlogPost
     private $author;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(["blog_post"])]
     private $createdAt;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(["blog_post"])]
     private $source;
 
     #[ORM\OneToMany(mappedBy: 'blogPost', targetEntity: Comment::class, cascade: ['persist', 'remove'])]
+    #[Groups(["blog_post"])]
     private $comments;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int
