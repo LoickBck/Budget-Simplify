@@ -8,8 +8,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class UserController extends AbstractController
+class AdminController extends AbstractController
 {
     private $entityManager;
 
@@ -18,20 +19,20 @@ class UserController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/users', name: 'users_index', methods: ['GET'])]
+    #[Route('/admin/users', name: 'admin_users_index', methods: ['GET'])]
     public function index(): Response
     {
         $users = $this->entityManager->getRepository(User::class)->findAll();
         return $this->json($users, Response::HTTP_OK, [], ['groups' => 'user']);
     }
 
-    #[Route('/users/{id}', name: 'user_show', methods: ['GET'])]
+    #[Route('/admin/users/{id}', name: 'admin_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
         return $this->json($user, Response::HTTP_OK, [], ['groups' => 'user']);
     }
 
-    #[Route('/users/{id}/edit', name: 'user_edit', methods: ['POST'])]
+    #[Route('/admin/users/{id}/edit', name: 'admin_user_edit', methods: ['POST'])]
     public function edit(Request $request, User $user): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -47,7 +48,7 @@ class UserController extends AbstractController
         return $this->json($user, Response::HTTP_OK, [], ['groups' => 'user']);
     }
 
-    #[Route('/users/{id}', name: 'user_delete', methods: ['DELETE'])]
+    #[Route('/admin/users/{id}', name: 'admin_user_delete', methods: ['DELETE'])]
     public function delete(User $user): Response
     {
         $this->entityManager->remove($user);

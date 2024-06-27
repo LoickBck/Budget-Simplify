@@ -2,26 +2,55 @@
 
 namespace App\Form;
 
-use App\Form\ApplicationType;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Validator\Constraints as Assert;
 
-class PasswordUpdateType extends ApplicationType
+class PasswordUpdateType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('currentPawword', PasswordType::class, $this->getConfiguration("Ancien mot de passe", "Donnez votre mot de passe actuel"))
-            ->add('newPassword', PasswordType::class, $this->getConfiguration("Nouveau mot de passe", "Donnez votre nouveau mot de passe"))
-            ->add('confirmPassword', PasswordType::class, $this->getConfiguration("Confirmation du mot de passe", "Confirmez votre mot de passe actuel"))
-        ;
+            ->add('currentPassword', PasswordType::class, [
+                'label' => 'Mot de passe actuel',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Veuillez entrer votre mot de passe actuel',
+                    ]),
+                ],
+            ])
+            ->add('newPassword', PasswordType::class, [
+                'label' => 'Nouveau mot de passe',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Veuillez entrer un nouveau mot de passe',
+                    ]),
+                    new Assert\Length([
+                        'min' => 6,
+                        'minMessage' => 'Votre mot de passe doit comporter au moins {{ limit }} caractères',
+                    ]),
+                ],
+            ])
+            ->add('confirmPassword', PasswordType::class, [
+                'label' => 'Confirmez le nouveau mot de passe',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Veuillez confirmer votre nouveau mot de passe',
+                    ]),
+                    new Assert\EqualTo([
+                        'propertyPath' => 'newPassword',
+                        'message' => 'Les mots de passe ne correspondent pas',
+                    ]),
+                ],
+            ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            // Configure your form options here
+            'csrf_protection' => false,
         ]);
     }
 }

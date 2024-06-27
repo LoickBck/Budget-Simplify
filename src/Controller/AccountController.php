@@ -20,23 +20,25 @@ class AccountController extends AbstractController
     private $entityManager;
     private $userRepository;
     private $security;
+    private $passwordHasher;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, Security $security)
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, Security $security, UserPasswordHasherInterface $passwordHasher)
     {
         $this->entityManager = $entityManager;
         $this->userRepository = $userRepository;
         $this->security = $security;
+        $this->passwordHasher = $passwordHasher;
     }
 
     #[Route('/register', name: 'api_register', methods: ['POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
+    public function register(Request $request, ValidatorInterface $validator): JsonResponse
     {
         try {
             $data = json_decode($request->getContent(), true);
 
             $user = new User();
             $user->setEmail($data['email']);
-            $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
             $user->setFirstName($data['firstName']);
             $user->setLastName($data['lastName']);
             $user->setIntroduction($data['introduction']);
@@ -82,45 +84,59 @@ class AccountController extends AbstractController
         return new JsonResponse(['message' => 'Utilisateur déconnecté', 'redirect' => 'homepage']);
     }
 
-    #[Route('/update-password', name: 'api_update_password', methods: ['POST'])]
-    public function updatePassword(Request $request, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
+    #[Route('/update-password', name: 'update_password', methods: ['POST'])]
+    public function updatePassword(Request $request): Response
     {
-        try {
-            $user = $this->getUser();
-            if (!$user) {
-                return new JsonResponse(['message' => 'Utilisateur non authentifié'], Response::HTTP_UNAUTHORIZED);
-            }
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
 
+        $data = json_decode($request->getContent(), true);
+        $oldPassword = $data['currentPassword'];
+        $newPassword = $data['newPassword'];
+
+        if (!$this->passwordHasher->isPasswordValid($user, $oldPassword)) {
+            return $this->json(['message' => 'Current password is incorrect'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));
+        $this->entityManager->flush();
+
+        return $this->json(['message' => 'Password updated successfully'], Response::HTTP_OK);
+    }
+
+    #[Route("/account", name: "account_index", methods: ['GET', 'POST'])]
+    public function account(Request $request): Response
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return new JsonResponse(['message' => 'Utilisateur non authentifié'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
-            $currentPassword = $data['currentPassword'];
-            $newPassword = $data['newPassword'];
-            $confirmPassword = $data['confirmPassword'];
-
-            if ($newPassword !== $confirmPassword) {
-                return new JsonResponse(['message' => 'Les mots de passe ne correspondent pas.'], Response::HTTP_BAD_REQUEST);
-            }
-
-            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
-                return new JsonResponse(['message' => 'Le mot de passe actuel est incorrect.'], Response::HTTP_UNAUTHORIZED);
-            }
-
-            $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
-
-            $errors = $validator->validate($user);
-            if (count($errors) > 0) {
-                $errorMessages = [];
-                foreach ($errors as $error) {
-                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
-                }
-                return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
-            }
+            $user->setEmail($data['email']);
+            $user->setFirstName($data['firstName']);
+            $user->setLastName($data['lastName']);
+            $user->setIntroduction($data['introduction']);
+            $user->setDescription($data['description']);
 
             $this->entityManager->flush();
 
-            return new JsonResponse(['message' => 'Mot de passe mis à jour avec succès']);
-        } catch (\Exception $e) {
-            $this->container->get('logger')->error($e->getMessage());
-            return new JsonResponse(['message' => 'Une erreur est survenue lors de la mise à jour du mot de passe'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['message' => 'Informations mises à jour avec succès'], Response::HTTP_OK);
         }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'introduction' => $user->getIntroduction(),
+            'description' => $user->getDescription(),
+            'picture' => $user->getPicture(),
+            'slug' => $user->getSlug(),
+        ]);
     }
 }
