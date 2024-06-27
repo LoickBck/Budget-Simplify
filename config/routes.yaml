@@ -102,6 +102,21 @@ income_delete:
     controller: App\Controller\IncomeController::delete
     methods: [DELETE]
 
+comment_create:
+    path: /comments
+    controller: App\Controller\CommentController::create
+    methods: [POST]
+
+comment_index:
+    path: /comments/{postId}
+    controller: App\Controller\CommentController::index
+    methods: [GET]
+
+comment_delete:
+    path: /comments/{id}
+    controller: App\Controller\CommentController::delete
+    methods: [DELETE]
+
 blog_index:
     path: /blog
     controller: App\Controller\BlogController::index
@@ -112,6 +127,11 @@ blog_new:
     controller: App\Controller\BlogController::new
     methods: [POST]
 
+blog_show:
+    path: /blog/{id}
+    controller: App\Controller\BlogController::show
+    methods: [GET]
+
 blog_edit:
     path: /blog/{id}/edit
     controller: App\Controller\BlogController::edit
@@ -121,13 +141,3 @@ blog_delete:
     path: /blog/{id}
     controller: App\Controller\BlogController::delete
     methods: [DELETE]
-
-comments:
-    path: /comments/{postId}
-    controller: App\Controller\CommentController::index
-    methods: [GET]
-
-comment_create:
-    path: /comments
-    controller: App\Controller\CommentController::create
-    methods: [POST]

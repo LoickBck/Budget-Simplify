@@ -122,7 +122,7 @@ class BlogController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/{id}/delete', name: 'blog_delete', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'blog_delete', methods: ['DELETE'])]
     public function delete(BlogPost $blogPost): Response
     {
         $user = $this->getUser();

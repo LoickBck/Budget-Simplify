@@ -72,12 +72,12 @@ const Comments = ({ postId, postAuthorEmail }) => {
             <div className="space-y-4">
                 {comments.map((comment) => (
                     <div key={comment.id} className="bg-gray-100 p-4 rounded">
-                        <p className="text-gray-700">{comment.content}</p>
+                        <p>{comment.content}</p>
                         <p className="text-sm text-gray-500">Auteur: {comment.author.email}</p>
                         <p className="text-sm text-gray-500">Date: {dayjs(comment.createdAt).format('DD MMMM YYYY')}</p>
-                        {isAuthenticated && (user.email === comment.author.email || user.email === postAuthorEmail) && (
+                        {(isAuthenticated && (user.email === comment.author.email || user.email === postAuthorEmail)) && (
                             <button
-                                className="bg-red-500 text-white px-2 py-1 rounded mt-2"
+                                className="text-red-500 text-sm"
                                 onClick={() => handleDelete(comment.id)}
                             >
                                 Supprimer
@@ -91,14 +91,15 @@ const Comments = ({ postId, postAuthorEmail }) => {
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        placeholder="Écrire un commentaire..."
                         className="w-full p-2 border rounded"
-                    />
+                        rows="4"
+                        placeholder="Ajouter un commentaire"
+                    ></textarea>
                     <button
                         type="submit"
-                        className="mt-2 bg-primary text-white px-4 py-2 rounded"
+                        className="bg-primary text-white px-4 py-2 rounded mt-2"
                     >
-                        Poster le commentaire
+                        Envoyer
                     </button>
                 </form>
             )}

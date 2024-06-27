@@ -56,6 +56,31 @@ class CommentController extends AbstractController
         ], Response::HTTP_CREATED);
     }
 
+    #[Route('/comments/{postId<\d+>}', name: 'comment_index', methods: ['GET'])]
+    public function index(int $postId): Response
+    {
+        $blogPost = $this->entityManager->getRepository(BlogPost::class)->find($postId);
+        if (!$blogPost) {
+            return $this->json(['message' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $comments = $blogPost->getComments();
+
+        $data = [];
+        foreach ($comments as $comment) {
+            $data[] = [
+                'id' => $comment->getId(),
+                'content' => $comment->getContent(),
+                'author' => [
+                    'email' => $comment->getAuthor()->getEmail(),
+                ],
+                'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        return $this->json($data, Response::HTTP_OK);
+    }
+
     #[Route('/comments/{id}', name: 'comment_delete', methods: ['DELETE'])]
     public function delete(Comment $comment): Response
     {
