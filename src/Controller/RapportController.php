@@ -101,13 +101,16 @@ class RapportController extends AbstractController
             $endDate = new \DateTime("last day of December $year");
         }
 
-        $expenses = $this->expenseRepository->findRegularAndNonRegularByUserAndDateRange($user, $startDate, $endDate);
-        $incomes = $this->incomeRepository->findRegularAndNonRegularByUserAndDateRange($user, $startDate, $endDate);
+        // Récupération des données
+        $expenses = $this->expenseRepository->findByUserAndDateRange($user, $startDate, $endDate);
+        $incomes = $this->incomeRepository->findByUserAndDateRange($user, $startDate, $endDate);
 
+        // Calcul des totaux
         $totalIncome = array_reduce($incomes, fn($sum, $income) => $sum + $income->getAmount(), 0);
         $totalExpenses = array_reduce($expenses, fn($sum, $expense) => $sum + $expense->getAmount(), 0);
         $totalSavings = $totalIncome - $totalExpenses;
 
+        // Préparation des données pour les graphiques
         $expensesData = $this->generatePieChartData($expenses);
         $incomeData = $this->generatePieChartData($incomes);
 

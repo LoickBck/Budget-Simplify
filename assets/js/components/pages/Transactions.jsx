@@ -121,8 +121,28 @@ const Transactions = () => {
         }
     };
 
+    const generatePageNumbers = () => {
+        let pages = [];
+        const maxPagesToShow = 5;
+        const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
+        const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+
+        if (totalPages <= maxPagesToShow) {
+            pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+        } else if (currentPage <= halfMaxPagesToShow) {
+            pages = Array.from({ length: maxPagesToShow }, (_, index) => index + 1);
+        } else if (currentPage + halfMaxPagesToShow >= totalPages) {
+            pages = Array.from({ length: maxPagesToShow }, (_, index) => totalPages - maxPagesToShow + index + 1);
+        } else {
+            pages = Array.from({ length: maxPagesToShow }, (_, index) => currentPage - halfMaxPagesToShow + index);
+        }
+
+        return pages;
+    };
+
     const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
     const paginatedTransactions = paginateTransactions();
+    const pageNumbers = generatePageNumbers();
 
     return (
         <div className="flex h-screen bg-gray-100 mt-16 xl:mt-0">
@@ -224,14 +244,16 @@ const Transactions = () => {
                             className="bg-primary text-white px-4 py-2 rounded">
                             <i className="fas fa-chevron-left"></i>
                         </button>
-                        {Array.from({ length: totalPages }, (_, index) => (
+
+                        {pageNumbers.map((page) => (
                             <button
-                                key={index + 1}
-                                onClick={() => handlePageChange(index + 1)}
-                                className={`bg-primary text-white px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-green-600' : ''}`}>
-                                {index + 1}
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                className={`bg-primary text-white px-4 py-2 rounded ${currentPage === page ? 'bg-secondary' : ''}`}>
+                                {page}
                             </button>
                         ))}
+
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}

@@ -44,7 +44,6 @@ class ExpenseController extends AbstractController
                     'id' => $expense->getCategory()->getId(),
                     'name' => $expense->getCategory()->getName()
                 ],
-                'isRegular' => $expense->getIsRegular(),
                 'date' => $expense->getDate()->format('Y-m-d H:i:s'),
             ];
         }
@@ -58,7 +57,7 @@ class ExpenseController extends AbstractController
         $user = $this->security->getUser();
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['name'], $data['amount'], $data['category'], $data['isRegular'], $data['date'])) {
+        if (!isset($data['name'], $data['amount'], $data['category'], $data['date'])) {
             return new JsonResponse(['message' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -72,14 +71,9 @@ class ExpenseController extends AbstractController
         $expense->setAmount($data['amount']);
         $expense->setCategory($category);
         $expense->setUser($user);
-        $expense->setIsRegular($data['isRegular']);
         $expense->setDate(new \DateTime($data['date']));
 
         $this->entityManager->persist($expense);
-
-        if ($expense->getIsRegular()) {
-            $this->createRecurringExpenses($expense);
-        }
 
         $this->entityManager->flush();
 
@@ -119,7 +113,6 @@ class ExpenseController extends AbstractController
             'name' => $expense->getName(),
             'amount' => $expense->getAmount(),
             'category' => $expense->getCategory()->getName(),
-            'isRegular' => $expense->getIsRegular(),
             'date' => $expense->getDate()->format('Y-m-d H:i:s'),
         ];
 
@@ -148,9 +141,6 @@ class ExpenseController extends AbstractController
             if ($category) {
                 $expense->setCategory($category);
             }
-        }
-        if (isset($data['isRegular'])) {
-            $expense->setIsRegular($data['isRegular']);
         }
         if (isset($data['date'])) {
             $expense->setDate(new \DateTime($data['date']));

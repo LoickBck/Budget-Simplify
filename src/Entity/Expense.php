@@ -30,8 +30,6 @@ class Expense
     #[ORM\Column(type: 'datetime')]
     private $date;
 
-    #[ORM\Column(type: 'boolean')]
-    private $isRegular;
 
     public function getId(): ?int
     {
@@ -82,18 +80,6 @@ class Expense
     public function setAmount(string $amount): self
     {
         $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getIsRegular(): ?bool
-    {
-        return $this->isRegular;
-    }
-
-    public function setIsRegular(bool $isRegular): self
-    {
-        $this->isRegular = $isRegular;
 
         return $this;
     }

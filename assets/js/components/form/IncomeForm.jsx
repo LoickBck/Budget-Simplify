@@ -5,7 +5,6 @@ const IncomeForm = ({ transaction, fetchTransactions, closeModal, setAlert }) =>
         name: '',
         amount: '',
         category: '',
-        isRegular: false,
         date: ''
     });
 
@@ -99,18 +98,6 @@ const IncomeForm = ({ transaction, fetchTransactions, closeModal, setAlert }) =>
                     onChange={handleChange}
                     className="w-full p-2 border border-gray-300 rounded mt-2"
                 />
-            </div>
-            <div className="mb-4">
-                <label className="block text-gray-700">
-                    <input
-                        type="checkbox"
-                        name="isRegular"
-                        checked={formData.isRegular}
-                        onChange={handleChange}
-                        className="mr-2"
-                    />
-                    Revenu régulier
-                </label>
             </div>
             <button type="submit" className={`px-4 py-2 rounded text-white ${transaction ? 'bg-warning' : 'bg-primary'} hover:${transaction ? 'bg-orange-500' : 'bg-green-600'}`}>
                 {transaction ? 'Modifier le revenu' : 'Ajouter un revenu'}
