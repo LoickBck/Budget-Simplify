@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,13 +22,20 @@ class AccountController extends AbstractController
     private $userRepository;
     private $security;
     private $passwordHasher;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, Security $security, UserPasswordHasherInterface $passwordHasher)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        Security $security,
+        UserPasswordHasherInterface $passwordHasher,
+        LoggerInterface $logger // Injection du service logger
+    ) {
         $this->entityManager = $entityManager;
         $this->userRepository = $userRepository;
         $this->security = $security;
         $this->passwordHasher = $passwordHasher;
+        $this->logger = $logger;
     }
 
     #[Route('/register', name: 'api_register', methods: ['POST'])]
@@ -44,6 +52,9 @@ class AccountController extends AbstractController
             $user->setIntroduction($data['introduction']);
             $user->setDescription($data['description']);
 
+            // Forcer la génération du slug
+            $user->initializeSlug();
+
             $errors = $validator->validate($user);
             if (count($errors) > 0) {
                 $errorMessages = [];
@@ -58,7 +69,7 @@ class AccountController extends AbstractController
 
             return new JsonResponse(['message' => 'Utilisateur enregistré avec succès'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
-            $this->container->get('logger')->error($e->getMessage());
+            $this->logger->error($e->getMessage());
             return new JsonResponse(['message' => 'Une erreur est survenue lors de l\'enregistrement'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -73,7 +84,7 @@ class AccountController extends AbstractController
             }
             return new JsonResponse(['message' => 'Adresse email ou mot de passe invalide'], Response::HTTP_UNAUTHORIZED);
         } catch (\Exception $e) {
-            $this->container->get('logger')->error($e->getMessage());
+            $this->logger->error($e->getMessage());
             return new JsonResponse(['message' => 'Une erreur est survenue lors de la connexion'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -135,7 +146,6 @@ class AccountController extends AbstractController
             'lastName' => $user->getLastName(),
             'introduction' => $user->getIntroduction(),
             'description' => $user->getDescription(),
-            'picture' => $user->getPicture(),
             'slug' => $user->getSlug(),
         ]);
     }

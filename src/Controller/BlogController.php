@@ -6,135 +6,112 @@ use App\Entity\BlogPost;
 use App\Repository\BlogPostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/blog')]
 class BlogController extends AbstractController
 {
-    private $entityManager;
     private $blogPostRepository;
+    private $entityManager;
+    private $serializer;
 
-    public function __construct(EntityManagerInterface $entityManager, BlogPostRepository $blogPostRepository)
-    {
-        $this->entityManager = $entityManager;
+    public function __construct(
+        BlogPostRepository $blogPostRepository, 
+        EntityManagerInterface $entityManager,
+        SerializerInterface $serializer
+    ) {
         $this->blogPostRepository = $blogPostRepository;
+        $this->entityManager = $entityManager;
+        $this->serializer = $serializer;
     }
 
-    #[Route('/', name: 'blog_index', methods: ['GET'])]
-    public function index(): Response
+    #[Route('/api/blog-posts', name: 'blog_posts', methods: ['GET'])]
+    public function getBlogPosts(): JsonResponse
     {
-        $blogPosts = $this->blogPostRepository->findAll();
-        $data = [];
-
-        foreach ($blogPosts as $post) {
-            $data[] = [
-                'id' => $post->getId(),
-                'title' => $post->getTitle(),
-                'content' => $post->getContent(),
-                'source' => $post->getSource(),
-                'author' => [
-                    'email' => $post->getAuthor()->getEmail(),
-                ],
-                'createdAt' => $post->getCreatedAt()->format('Y-m-d H:i:s'),
-            ];
-        }
-        return $this->json($data, Response::HTTP_OK);
+        $posts = $this->blogPostRepository->findAll();
+        $data = $this->serializer->serialize($posts, 'json', ['groups' => 'blog_post']);
+        
+        return new JsonResponse($data, 200, [], true);
     }
 
-    #[Route('/new', name: 'blog_new', methods: ['POST'])]
-    public function new(Request $request): Response
+    #[Route('/api/blog-posts/{id}', name: 'blog_post', methods: ['GET'])]
+    public function getBlogPost(int $id): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        $post = $this->blogPostRepository->find($id);
+
+        if (!$post) {
+            return new JsonResponse(['error' => 'Article not found'], 404);
         }
 
+        $data = $this->serializer->serialize($post, 'json', ['groups' => 'blog_post']);
+
+        return new JsonResponse($data, 200, [], true);
+    }
+
+    #[Route('/api/blog-posts', name: 'create_blog_post', methods: ['POST'])]
+    public function createBlogPost(Request $request): JsonResponse
+    {
         $data = json_decode($request->getContent(), true);
+
+        $user = $this->getUser(); // Récupère l'utilisateur actuellement connecté
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Utilisateur non authentifié'], 401);
+        }
 
         $blogPost = new BlogPost();
         $blogPost->setTitle($data['title']);
         $blogPost->setContent($data['content']);
-        $blogPost->setSource($data['source'] ?? '');
-        $blogPost->setAuthor($user);
-        $blogPost->setCreatedAt(new \DateTime());
+        $blogPost->setImage($data['image']);
+        $blogPost->setAuthor($user); // Associe l'utilisateur connecté comme auteur
+        $blogPost->setDate(new \DateTime($data['date']));
+        $blogPost->setCategory($data['category']);
+        $blogPost->setExcerpt($data['excerpt']);
 
         $this->entityManager->persist($blogPost);
         $this->entityManager->flush();
 
-        return $this->json([
-            'id' => $blogPost->getId(),
-            'title' => $blogPost->getTitle(),
-            'content' => $blogPost->getContent(),
-            'source' => $blogPost->getSource(),
-            'author' => [
-                'email' => $user->getEmail(),
-            ],
-            'createdAt' => $blogPost->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], Response::HTTP_CREATED);
+        return new JsonResponse(['status' => 'Article créé'], 201);
     }
 
-    #[Route('/{id}', name: 'blog_show', methods: ['GET'])]
-    public function show(int $id): Response
+    #[Route('/api/blog-posts/{id}', name: 'update_blog_post', methods: ['PUT'])]
+    public function updateBlogPost(int $id, Request $request): JsonResponse
     {
         $blogPost = $this->blogPostRepository->find($id);
 
         if (!$blogPost) {
-            throw $this->createNotFoundException('The blog post does not exist');
-        }
-
-        return $this->json([
-            'id' => $blogPost->getId(),
-            'title' => $blogPost->getTitle(),
-            'content' => $blogPost->getContent(),
-            'source' => $blogPost->getSource(),
-            'author' => [
-                'email' => $blogPost->getAuthor()->getEmail(),
-            ],
-            'createdAt' => $blogPost->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], Response::HTTP_OK);
-    }
-
-    #[Route('/{id}/edit', name: 'blog_edit', methods: ['PUT'])]
-    public function edit(Request $request, BlogPost $blogPost): Response
-    {
-        $user = $this->getUser();
-        if ($blogPost->getAuthor() !== $user) {
-            return $this->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(['error' => 'Article not found'], 404);
         }
 
         $data = json_decode($request->getContent(), true);
 
-        $blogPost->setTitle($data['title']);
-        $blogPost->setContent($data['content']);
-        $blogPost->setSource($data['source'] ?? '');
+        $blogPost->setTitle($data['title'] ?? $blogPost->getTitle());
+        $blogPost->setContent($data['content'] ?? $blogPost->getContent());
+        $blogPost->setImage($data['image'] ?? $blogPost->getImage());
+        $blogPost->setAuthor($blogPost->getAuthor()); // Ne change pas l'auteur
+        $blogPost->setDate(new \DateTime($data['date'] ?? $blogPost->getDate()->format('Y-m-d')));
+        $blogPost->setCategory($data['category'] ?? $blogPost->getCategory());
+        $blogPost->setExcerpt($data['excerpt'] ?? $blogPost->getExcerpt());
 
         $this->entityManager->flush();
 
-        return $this->json([
-            'id' => $blogPost->getId(),
-            'title' => $blogPost->getTitle(),
-            'content' => $blogPost->getContent(),
-            'source' => $blogPost->getSource(),
-            'author' => [
-                'email' => $user->getEmail(),
-            ],
-            'createdAt' => $blogPost->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], Response::HTTP_OK);
+        return new JsonResponse(['status' => 'Article mis à jour'], 200);
     }
 
-    #[Route('/{id}', name: 'blog_delete', methods: ['DELETE'])]
-    public function delete(BlogPost $blogPost): Response
+    #[Route('/api/blog-posts/{id}', name: 'delete_blog_post', methods: ['DELETE'])]
+    public function deleteBlogPost(int $id): JsonResponse
     {
-        $user = $this->getUser();
-        if ($blogPost->getAuthor() !== $user) {
-            return $this->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
+        $blogPost = $this->blogPostRepository->find($id);
+
+        if (!$blogPost) {
+            return new JsonResponse(['error' => 'Article non trouvé'], 404);
         }
 
         $this->entityManager->remove($blogPost);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Blog post deleted'], Response::HTTP_OK);
+        return new JsonResponse(['status' => 'Article supprimé'], 200);
     }
 }

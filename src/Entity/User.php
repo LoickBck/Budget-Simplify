@@ -22,12 +22,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["blog_post", "user","comment"])]
+    #[Groups(["blog_post", "user", "comment"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\Email(message: "Veuillez renseigner une adresse e-mail valide")]
-    #[Groups(["blog_post", "user","comment"])]
+    #[Groups(["blog_post", "user", "comment"])]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -39,7 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Assert\EqualTo(propertyPath: "password", message: "Vous n'avez pas correctement confirmé votre mot de passe")]
-    public ?string $passwordConfirm = null;    
+    public ?string $passwordConfirm = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Veuillez renseigner votre prénom")]
@@ -50,11 +50,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: "Veuillez renseigner votre nom de famille")]
     #[Groups(["blog_post", "user"])]
     private ?string $lastName = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'], mimeTypesMessage: "Vous devez uploader un fichier jpg, jpeg, png ou gif")]
-    #[Assert\File(maxSize: "1024k", maxSizeMessage: "La taille du fichier est trop grande")]
-    private ?string $picture = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Length(min: 10, max: 255, minMessage: "Votre introduction doit faire plus de 10 caractères", maxMessage: "Votre introduction ne doit pas faire plus de 255 caractères")]
@@ -80,13 +75,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Comment::class)]
     private $comments;
 
-    public function __construct()
-    {
-        $this->categories = new ArrayCollection();
-        $this->expenses = new ArrayCollection();
-        $this->incomes = new ArrayCollection();
-        $this->comments = new ArrayCollection();
-    }
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: BlogPost::class)]
+    private $blogPosts;
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
@@ -96,6 +86,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $slugify = new Slugify();
             $this->slug = $slugify->slugify($this->firstName . ' ' . $this->lastName . ' ' . uniqid());
         }
+    }
+
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+        $this->expenses = new ArrayCollection();
+        $this->incomes = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->blogPosts = new ArrayCollection();
     }
 
     public function getFullName(): string
@@ -172,17 +172,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastName(string $lastName): static
     {
         $this->lastName = $lastName;
-        return $this;
-    }
-
-    public function getPicture(): ?string
-    {
-        return $this->picture;
-    }
-
-    public function setPicture(?string $picture): static
-    {
-        $this->picture = $picture;
         return $this;
     }
 
@@ -318,6 +307,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $comment->setAuthor(null);
             }
         }
+        return $this;
+    }
+
+    public function getBlogPosts(): Collection
+    {
+        return $this->blogPosts;
+    }
+
+    public function addBlogPost(BlogPost $blogPost): self
+    {
+        if (!$this->blogPosts->contains($blogPost)) {
+            $this->blogPosts[] = $blogPost;
+            $blogPost->setAuthor($this);
+        }
+        return $this;
+    }
+
+    public function removeBlogPost(BlogPost $blogPost): self
+    {
+        if ($this->blogPosts->removeElement($blogPost)) {
+            if ($blogPost->getAuthor() === $this) {
+                $blogPost->setAuthor(null);
+            }
+        }
+
         return $this;
     }
 }

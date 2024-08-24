@@ -1,93 +1,101 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // Importez votre contexte d'authentification
+import { useAuth } from '../../context/AuthContext';
 
-const BlogForm = ({ blog }) => {
-    const [title, setTitle] = useState(blog ? blog.title : '');
-    const [content, setContent] = useState(blog ? blog.content : '');
-    const navigate = useNavigate();
-    const { user } = useAuth(); // Récupérez les informations de l'utilisateur connecté
+const BlogForm = ({ closeModal, fetchBlogPosts }) => {
+    const [formData, setFormData] = useState({
+        title: '',
+        content: '',
+        image: '',
+        category: '',
+        excerpt: '',
+        date: new Date().toISOString().split('T')[0], 
+    });
+
+    const { user } = useAuth();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const data = {
-            title,
-            content,
-            user_id: user.id 
-        };
-
-        const url = blog ? `blog/${blog.id}` : '/blog';
-        const method = blog ? 'PUT' : 'POST';
-
-        try {
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const responseData = await response.json();
-
-            if (response.ok) {
-                navigate(`/blog/${responseData.id}`);
-            } else {
-                console.error('Erreur lors de l\'enregistrement:', responseData);
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
+        const response = await fetch('/api/blog-posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...formData, author: user?.id }),
+        });
+        if (response.ok) {
+            fetchBlogPosts();
+            closeModal();
+        } else {
+            console.error('Failed to create blog post');
         }
     };
 
     return (
-        <div className="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
-                    {blog ? 'Edit Blog Post' : 'Create New Blog Post'}
-                </h2>
+        <form onSubmit={handleSubmit} className="bg-background p-6 rounded shadow-md">
+            <div className="mb-4">
+                <label className="block text-text">Titre</label>
+                <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded mt-2"
+                    required
+                />
             </div>
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="title" className="block text-sm font-medium leading-5 text-gray-700">Title</label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <input
-                                    id="title"
-                                    name="title"
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                                />
-                            </div>
-                        </div>
-                        <div className="mt-6">
-                            <label htmlFor="content" className="block text-sm font-medium leading-5 text-gray-700">Content</label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <textarea
-                                    id="content"
-                                    name="content"
-                                    value={content}
-                                    onChange={(e) => setContent(e.target.value)}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-green-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                                />
-                            </div>
-                        </div>
-                        <div className="mt-6">
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-indigo active:bg-green-700 transition duration-150 ease-in-out"
-                            >
-                                {blog ? 'Update Post' : 'Create Post'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div className="mb-4">
+                <label className="block text-text">Contenu</label>
+                <textarea
+                    name="content"
+                    value={formData.content}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded mt-2"
+                    rows="5"
+                    required
+                ></textarea>
             </div>
-        </div>
+            <div className="mb-4">
+                <label className="block text-text">Image</label>
+                <input
+                    type="text"
+                    name="image"
+                    value={formData.image}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded mt-2"
+                    placeholder="URL de l'image"
+                    required
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-text">Catégorie</label>
+                <input
+                    type="text"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded mt-2"
+                    required
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-text">Source</label>
+                <textarea
+                    name="excerpt"
+                    value={formData.excerpt}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded mt-2"
+                    rows="2"
+                    required
+                ></textarea>
+            </div>
+            <button type="submit" className="bg-primary text-white px-4 py-2 rounded">Publier</button>
+        </form>
     );
 };
 

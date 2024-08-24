@@ -2,9 +2,8 @@
 
 namespace App\Entity;
 
-use App\Entity\BlogPost;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CommentRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
@@ -12,30 +11,41 @@ class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    #[Groups(["comment", "blog_post"])]
-    private $id;
+    #[ORM\Column]
+    #[Groups(["blog_post", "comment"])]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(["blog_post", "comment"])]
+    private ?string $author = null;
 
     #[ORM\Column(type: 'text')]
-    #[Groups(["comment", "blog_post"])]
-    private $content;
-
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["comment", "blog_post"])]
-    private $author;
+    #[Groups(["blog_post", "comment"])]
+    private ?string $content = null;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(["comment", "blog_post"])]
-    private $createdAt;
+    #[Groups(["blog_post", "comment"])]
+    private ?\DateTimeInterface $date = null;
 
     #[ORM\ManyToOne(targetEntity: BlogPost::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
-    private $post;
+    private ?BlogPost $blogPost = null;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getAuthor(): ?string
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(string $author): self
+    {
+        $this->author = $author;
+
+        return $this;
     }
 
     public function getContent(): ?string
@@ -46,39 +56,31 @@ class Comment
     public function setContent(string $content): self
     {
         $this->content = $content;
+
         return $this;
     }
 
-    public function getAuthor(): ?User
+    public function getDate(): ?\DateTimeInterface
     {
-        return $this->author;
+        return $this->date;
     }
 
-    public function setAuthor(?User $author): self
+    public function setDate(\DateTimeInterface $date): self
     {
-        $this->author = $author;
+        $this->date = $date;
+
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getBlogPost(): ?BlogPost
     {
-        return $this->createdAt;
+        return $this->blogPost;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setBlogPost(?BlogPost $blogPost): self
     {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+        $this->blogPost = $blogPost;
 
-    public function getPost(): ?BlogPost
-    {
-        return $this->post;
-    }
-
-    public function setPost(?BlogPost $post): self
-    {
-        $this->post = $post;
         return $this;
     }
 }

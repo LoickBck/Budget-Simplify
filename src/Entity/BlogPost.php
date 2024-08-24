@@ -2,12 +2,8 @@
 
 namespace App\Entity;
 
-use App\Entity\User;
-use App\Entity\Comment;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\BlogPostRepository;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
@@ -15,40 +11,38 @@ class BlogPost
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    #[Groups(["blog_post"])]
-    private $id;
+    #[ORM\Column]
+    #[Groups(["blog_post", "comment"])]
+    private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["blog_post"])]
-    private $title;
+    #[ORM\Column(length: 255)]
+    #[Groups(["blog_post", "comment"])]
+    private ?string $title = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: "text")]
     #[Groups(["blog_post"])]
-    private $content;
+    private ?string $content = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(["blog_post"])]
+    private ?string $image = null;
+
+    #[ORM\Column(type: "datetime")]
+    #[Groups(["blog_post"])]
+    private ?\DateTimeInterface $date = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(["blog_post"])]
+    private ?string $category = null;
+
+    #[ORM\Column(type: "text", nullable: true)]
+    #[Groups(["blog_post"])]
+    private ?string $excerpt = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'blogPosts')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["blog_post"])]
-    private $author;
-
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(["blog_post"])]
-    private $createdAt;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(["blog_post"])]
-    private $source;
-
-    #[ORM\OneToMany(mappedBy: 'blogPost', targetEntity: Comment::class, cascade: ['persist', 'remove'])]
-    #[Groups(["blog_post"])]
-    private $comments;
-
-    public function __construct()
-    {
-        $this->comments = new ArrayCollection();
-        $this->createdAt = new \DateTime();
-    }
+    private ?User $author = null;
 
     public function getId(): ?int
     {
@@ -77,6 +71,50 @@ class BlogPost
         return $this;
     }
 
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category): self
+    {
+        $this->category = $category;
+        return $this;
+    }
+
+    public function getExcerpt(): ?string
+    {
+        return $this->excerpt;
+    }
+
+    public function setExcerpt(?string $excerpt): self
+    {
+        $this->excerpt = $excerpt;
+        return $this;
+    }
+
     public function getAuthor(): ?User
     {
         return $this->author;
@@ -88,52 +126,9 @@ class BlogPost
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    #[Groups(["blog_post"])]
+    public function getAuthorFullName(): ?string
     {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getSource(): ?string
-    {
-        return $this->source;
-    }
-
-    public function setSource(?string $source): self
-    {
-        $this->source = $source;
-        return $this;
-    }
-
-    /**
-     * @return Collection|Comment[]
-     */
-    public function getComments(): Collection
-    {
-        return $this->comments;
-    }
-
-    public function addComment(Comment $comment): self
-    {
-        if (!$this->comments->contains($comment)) {
-            $this->comments[] = $comment;
-            $comment->setBlogPost($this);
-        }
-        return $this;
-    }
-
-    public function removeComment(Comment $comment): self
-    {
-        if ($this->comments->removeElement($comment)) {
-            if ($comment->getBlogPost() === $this) {
-                $comment->setBlogPost(null);
-            }
-        }
-        return $this;
+        return $this->author ? $this->author->getFullName() : null;
     }
 }

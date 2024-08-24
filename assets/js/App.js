@@ -8,7 +8,8 @@ import Contact from './components/pages/Contact';
 import Dashboard from './components/pages/Dashboard';
 import Transactions from './components/pages/Transactions';
 import Registration from './components/pages/Registration';
-import Blog from './components/pages/Blog';
+import BlogList from './components/pages/BlogList';
+import SinglePost from './components/pages/SinglePost';
 import Rapport from './components/pages/Rapport';
 import Footer from './components/partials/Footer';
 import Error from './components/pages/Error';
@@ -18,7 +19,6 @@ import Budget from './components/pages/Budget';
 import TermsOfService from './components/partials/TermsOfService';
 import Legal from './components/partials/Legal';
 import PrivacyPolicy from './components/partials/PrivacyPolicy';
-import BlogDetail from './components/pages/BlogDetail';
 import '../styles/app.css';
 
 function App() {
@@ -39,13 +39,13 @@ function App() {
               <Route path="/report" element={<PrivateRoute><Rapport /></PrivateRoute>} />
               <Route path="/transactions" element={<PrivateRoute><Transactions /></PrivateRoute>} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog" element={<BlogList />} />
+              <Route path="/blog/:id" element={<SinglePost />} />
               <Route path="/categories" element={<PrivateRoute><Category /></PrivateRoute>} />
               <Route path="/budgets" element={<PrivateRoute><Budget /></PrivateRoute>} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/legal" element={<Legal />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/blog/:id" element={<BlogDetail />} />
             </Routes>
           </div>
           <Footer />

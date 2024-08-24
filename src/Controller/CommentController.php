@@ -3,99 +3,69 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\BlogPost;
 use App\Repository\CommentRepository;
+use App\Repository\BlogPostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/comments')]
 class CommentController extends AbstractController
 {
-    private $entityManager;
     private $commentRepository;
+    private $blogPostRepository;
+    private $entityManager;
+    private $serializer;
 
-    public function __construct(EntityManagerInterface $entityManager, CommentRepository $commentRepository)
-    {
-        $this->entityManager = $entityManager;
+    public function __construct(
+        CommentRepository $commentRepository, 
+        BlogPostRepository $blogPostRepository, 
+        EntityManagerInterface $entityManager,
+        SerializerInterface $serializer
+    ) {
         $this->commentRepository = $commentRepository;
+        $this->blogPostRepository = $blogPostRepository;
+        $this->entityManager = $entityManager;
+        $this->serializer = $serializer;
     }
 
-    #[Route('/', name: 'comment_new', methods: ['POST'])]
-    public function new(Request $request): Response
+    #[Route('/api/blog-posts/{id}/comments', name: 'get_comments', methods: ['GET'])]
+    public function getComments(int $id): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        $blogPost = $this->blogPostRepository->find($id);
+
+        if (!$blogPost) {
+            return new JsonResponse(['error' => 'Article non trouvé'], 404);
+        }
+
+        $comments = $blogPost->getComments();
+        $data = $this->serializer->serialize($comments, 'json', ['groups' => 'blog_post']);
+
+        return new JsonResponse($data, 200, [], true);
+    }
+
+    #[Route('/api/blog-posts/{id}/comments', name: 'add_comment', methods: ['POST'])]
+    public function addComment(int $id, Request $request): JsonResponse
+    {
+        $blogPost = $this->blogPostRepository->find($id);
+
+        if (!$blogPost) {
+            return new JsonResponse(['error' => 'Article non trouvé'], 404);
         }
 
         $data = json_decode($request->getContent(), true);
-
         $comment = new Comment();
+        $comment->setAuthor($data['author']);
         $comment->setContent($data['content']);
-        $comment->setBlogId($data['blog_id']);
-        $comment->setUserId($user->getId());
-        $comment->setCreatedAt(new \DateTime());
+        $comment->setDate(new \DateTime());
+        $comment->setBlogPost($blogPost);
 
         $this->entityManager->persist($comment);
         $this->entityManager->flush();
 
-        return $this->json([
-            'id' => $comment->getId(),
-            'content' => $comment->getContent(),
-            'blog_id' => $comment->getBlogId(),
-            'user_id' => $comment->getUserId(),
-            'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], Response::HTTP_CREATED);
-    }
-
-    #[Route('/{id}', name: 'comment_show', methods: ['GET'])]
-    public function show(Comment $comment): Response
-    {
-        return $this->json([
-            'id' => $comment->getId(),
-            'content' => $comment->getContent(),
-            'blog_id' => $comment->getBlogId(),
-            'user_id' => $comment->getUserId(),
-            'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], Response::HTTP_OK);
-    }
-
-    #[Route('/{id}/edit', name: 'comment_edit', methods: ['PUT'])]
-    public function edit(Request $request, Comment $comment): Response
-    {
-        $user = $this->getUser();
-        if ($comment->getUserId() !== $user->getId()) {
-            return $this->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
-        }
-
-        $data = json_decode($request->getContent(), true);
-
-        $comment->setContent($data['content']);
-
-        $this->entityManager->flush();
-
-        return $this->json([
-            'id' => $comment->getId(),
-            'content' => $comment->getContent(),
-            'blog_id' => $comment->getBlogId(),
-            'user_id' => $comment->getUserId(),
-            'createdAt' => $comment->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], Response::HTTP_OK);
-    }
-
-    #[Route('/{id}', name: 'comment_delete', methods: ['DELETE'])]
-    public function delete(Comment $comment): Response
-    {
-        $user = $this->getUser();
-        if ($comment->getUserId() !== $user->getId()) {
-            return $this->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
-        }
-
-        $this->entityManager->remove($comment);
-        $this->entityManager->flush();
-
-        return $this->json(['message' => 'Comment deleted'], Response::HTTP_OK);
+        return new JsonResponse(['status' => 'Commentaire ajouté'], 201);
     }
 }
