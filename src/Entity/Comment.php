@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\CommentRepository;
+use App\Entity\User;
+use App\Entity\BlogPost;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CommentRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
@@ -15,9 +17,10 @@ class Comment
     #[Groups(["blog_post", "comment"])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
+    #[ORM\JoinColumn(nullable: false)]
     #[Groups(["blog_post", "comment"])]
-    private ?string $author = null;
+    private ?User $author = null;
 
     #[ORM\Column(type: 'text')]
     #[Groups(["blog_post", "comment"])]
@@ -25,7 +28,7 @@ class Comment
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(["blog_post", "comment"])]
-    private ?\DateTimeInterface $date = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: BlogPost::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
@@ -36,12 +39,12 @@ class Comment
         return $this->id;
     }
 
-    public function getAuthor(): ?string
+    public function getAuthor(): ?User
     {
         return $this->author;
     }
 
-    public function setAuthor(string $author): self
+    public function setAuthor(User $author): self
     {
         $this->author = $author;
 
@@ -60,14 +63,14 @@ class Comment
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->date;
+        return $this->createdAt;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        $this->date = $date;
+        $this->createdAt = $createdAt;
 
         return $this;
     }

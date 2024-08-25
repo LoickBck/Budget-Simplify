@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 const CommentForm = ({ postId, fetchComments }) => {
     const [formData, setFormData] = useState({
-        author: '',
         content: ''
     });
 
@@ -23,7 +22,7 @@ const CommentForm = ({ postId, fetchComments }) => {
         });
         if (response.ok) {
             fetchComments();
-            setFormData({ author: '', content: '' });
+            setFormData({ content: '' });
         } else {
             console.error('Failed to submit comment');
         }
@@ -31,17 +30,6 @@ const CommentForm = ({ postId, fetchComments }) => {
 
     return (
         <form onSubmit={handleSubmit} className="bg-background p-6 rounded shadow-md mt-8">
-            <div className="mb-4">
-                <label className="block text-text">Votre nom</label>
-                <input
-                    type="text"
-                    name="author"
-                    value={formData.author}
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded mt-2"
-                    required
-                />
-            </div>
             <div className="mb-4">
                 <label className="block text-text">Commentaire</label>
                 <textarea

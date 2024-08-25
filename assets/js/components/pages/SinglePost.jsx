@@ -1,27 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import CommentList from './CommentList';  
 import CommentForm from '../form/CommentForm';
 
 const SinglePost = () => {
     const { id } = useParams();
     const [post, setPost] = useState(null);
-    const [comments, setComments] = useState([]);
 
     useEffect(() => {
         fetchPost();
-        fetchComments();
     }, [id]);
 
     const fetchPost = async () => {
         const response = await fetch(`/api/blog-posts/${id}`);
         const data = await response.json();
         setPost(data);
-    };
-
-    const fetchComments = async () => {
-        const response = await fetch(`/api/blog-posts/${id}/comments`);
-        const data = await response.json();
-        setComments(data);
     };
 
     const renderContentWithLineBreaks = (content) => {
@@ -48,16 +41,10 @@ const SinglePost = () => {
                     </div>
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold text-secondary mb-4">Commentaires</h2>
-                        <div className="space-y-6">
-                            {comments.map((comment) => (
-                                <div key={comment.id} className="bg-white p-4 rounded-lg shadow-md">
-                                    <p className="text-gray-600"><strong>{comment.author}:</strong> {comment.content}</p>
-                                    <p className="text-sm text-gray-400">{new Date(comment.date).toLocaleDateString()}</p>
-                                </div>
-                            ))}
-                        </div>
+                        {/* Utilisation du CommentList pour afficher les commentaires */}
+                        <CommentList postId={id} />
                     </div>
-                    <CommentForm postId={id} fetchComments={fetchComments} />
+                    <CommentForm postId={id} fetchComments={() => fetchPost()} />
                 </>
             )}
         </div>

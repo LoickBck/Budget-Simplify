@@ -2,8 +2,12 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
+use App\Entity\Comment;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\BlogPostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
@@ -43,6 +47,14 @@ class BlogPost
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["blog_post"])]
     private ?User $author = null;
+
+    #[ORM\OneToMany(mappedBy: 'blogPost', targetEntity: Comment::class, orphanRemoval: true)]
+    private $comments;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -124,6 +136,14 @@ class BlogPost
     {
         $this->author = $author;
         return $this;
+    }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
     }
 
     #[Groups(["blog_post"])]

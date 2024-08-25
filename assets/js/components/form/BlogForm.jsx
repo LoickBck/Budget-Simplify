@@ -84,7 +84,7 @@ const BlogForm = ({ closeModal, fetchBlogPosts }) => {
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-text">Source</label>
+                <label className="block text-text">Résumé</label>
                 <textarea
                     name="excerpt"
                     value={formData.excerpt}
