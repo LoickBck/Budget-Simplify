@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import CommentList from './CommentList';  
-import CommentForm from '../form/CommentForm';
 
 const SinglePost = () => {
     const { id } = useParams();
@@ -44,7 +43,6 @@ const SinglePost = () => {
                         {/* Utilisation du CommentList pour afficher les commentaires */}
                         <CommentList postId={id} />
                     </div>
-                    <CommentForm postId={id} fetchComments={() => fetchPost()} />
                 </>
             )}
         </div>

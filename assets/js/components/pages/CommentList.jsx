@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext'; 
+import { useAuth } from '../../context/AuthContext';
+import CommentForm from '../form/CommentForm'; // Assurez-vous que le chemin est correct
 
 const CommentList = ({ postId }) => {
     const { user } = useAuth();
@@ -55,12 +56,16 @@ const CommentList = ({ postId }) => {
         }
     };
 
+    // Fonction pour ajouter un nouveau commentaire à la liste existante
+    const handleCommentAdded = (newComment) => {
+        setComments(prevComments => [...prevComments, newComment]);
+    };
+
     return (
         <div className="mt-8">
-            <h2 className="text-2xl font-semibold mb-4">Commentaires</h2>
             {comments.map(comment => (
                 <div key={comment.id} className="mb-4 p-4 bg-gray-100 rounded">
-                    <p className="font-bold">{comment.authorFullName}</p>
+                    <p><strong>{comment.authorFullName}</strong></p>
                     <p>{comment.content}</p>
                     <p className="text-sm text-gray-600">{new Date(comment.createdAt).toLocaleDateString()}</p>
                     {user?.id === comment.author.id && (
@@ -109,6 +114,9 @@ const CommentList = ({ postId }) => {
                     </div>
                 </div>
             )}
+
+            {/* Ajout du formulaire pour ajouter des commentaires, en passant handleCommentAdded */}
+            <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
         </div>
     );
 };

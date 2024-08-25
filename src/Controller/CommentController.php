@@ -63,7 +63,7 @@ class CommentController extends AbstractController
         $this->entityManager->persist($comment);
         $this->entityManager->flush();
 
-        return new JsonResponse(['status' => 'Comment added'], 201);
+       return $this->json($comment, 201, [], ['groups' => 'comment']);
     }
 
     #[Route('/api/comments/{id}', name: 'update_comment', methods: ['PUT'])]
