@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import BlogForm from '../form/BlogForm';
 import { useAuth } from '../../context/AuthContext';
+import Alert from '../utils/Alert'; 
 
 const BlogList = () => {
     const [posts, setPosts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { isAuthenticated } = useAuth();
+    const [alert, setAlert] = useState(null); // État pour gérer l'alerte
+    const location = useLocation(); // Récupérer l'état passé via navigate
 
     useEffect(() => {
         fetchBlogPosts();
-    }, []);
+
+        // Vérifiez si un état d'alerte a été passé via navigate
+        if (location.state && location.state.alertType && location.state.alertMessage) {
+            setAlert({
+                type: location.state.alertType,
+                message: location.state.alertMessage,
+            });
+        }
+    }, [location]);
 
     const fetchBlogPosts = async () => {
         const response = await fetch('/api/blog-posts');
@@ -28,6 +39,14 @@ const BlogList = () => {
 
     return (
         <div className="container mx-auto py-16">
+            {/* Affichage de l'alerte si elle existe */}
+            {alert && (
+                <Alert
+                    type={alert.type}
+                    message={alert.message}
+                    onClose={() => setAlert(null)}
+                />
+            )}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-secondary">Blog</h1>
                 {isAuthenticated && (

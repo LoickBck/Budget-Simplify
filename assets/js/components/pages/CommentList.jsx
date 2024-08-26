@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import CommentForm from '../form/CommentForm'; // Assurez-vous que le chemin est correct
+import CommentForm from '../form/CommentForm';
 
 const CommentList = ({ postId }) => {
     const { user } = useAuth();

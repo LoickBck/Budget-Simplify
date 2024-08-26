@@ -80,9 +80,15 @@ class BlogController extends AbstractController
     public function updateBlogPost(int $id, Request $request): JsonResponse
     {
         $blogPost = $this->blogPostRepository->find($id);
+        $user = $this->getUser();
 
         if (!$blogPost) {
             return new JsonResponse(['error' => 'Article not found'], 404);
+        }
+
+        // Vérifie si l'utilisateur connecté est l'auteur de l'article
+        if ($blogPost->getAuthor() !== $user) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -90,7 +96,6 @@ class BlogController extends AbstractController
         $blogPost->setTitle($data['title'] ?? $blogPost->getTitle());
         $blogPost->setContent($data['content'] ?? $blogPost->getContent());
         $blogPost->setImage($data['image'] ?? $blogPost->getImage());
-        $blogPost->setAuthor($blogPost->getAuthor()); // Ne change pas l'auteur
         $blogPost->setDate(new \DateTime($data['date'] ?? $blogPost->getDate()->format('Y-m-d')));
         $blogPost->setCategory($data['category'] ?? $blogPost->getCategory());
         $blogPost->setExcerpt($data['excerpt'] ?? $blogPost->getExcerpt());
@@ -104,9 +109,15 @@ class BlogController extends AbstractController
     public function deleteBlogPost(int $id): JsonResponse
     {
         $blogPost = $this->blogPostRepository->find($id);
+        $user = $this->getUser();
 
         if (!$blogPost) {
             return new JsonResponse(['error' => 'Article non trouvé'], 404);
+        }
+
+        // Vérifie si l'utilisateur connecté est l'auteur de l'article
+        if ($blogPost->getAuthor() !== $user) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
         $this->entityManager->remove($blogPost);

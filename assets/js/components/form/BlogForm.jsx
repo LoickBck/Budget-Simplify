@@ -1,38 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const BlogForm = ({ closeModal, fetchBlogPosts }) => {
+const BlogForm = ({ post = null, closeModal, fetchBlogPosts, onSubmit }) => {
     const [formData, setFormData] = useState({
         title: '',
         content: '',
         image: '',
         category: '',
         excerpt: '',
-        date: new Date().toISOString().split('T')[0], 
+        date: new Date().toISOString().split('T')[0],
     });
 
     const { user } = useAuth();
+
+    useEffect(() => {
+        if (post) {
+            setFormData({
+                title: post.title || '',
+                content: post.content || '',
+                image: post.image || '',
+                category: post.category || '',
+                excerpt: post.excerpt || '',
+                date: post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            });
+        }
+    }, [post]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await fetch('/api/blog-posts', {
-            method: 'POST',
+
+        const method = post ? 'PUT' : 'POST';
+        const url = post ? `/api/blog-posts/${post.id}` : '/api/blog-posts';
+
+        const response = await fetch(url, {
+            method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...formData, author: user?.id }),
         });
+
         if (response.ok) {
-            fetchBlogPosts();
-            closeModal();
+            if (fetchBlogPosts) {
+                fetchBlogPosts(); // Appel pour actualiser la liste des articles après l'ajout
+            }
+            closeModal(); // Ferme le modal après la soumission
+            if (onSubmit) {
+                onSubmit(); // Optionnel, si vous avez besoin de gérer d'autres actions après la soumission
+            }
         } else {
-            console.error('Failed to create blog post');
+            console.error('Failed to submit blog post');
         }
     };
 
@@ -94,7 +117,9 @@ const BlogForm = ({ closeModal, fetchBlogPosts }) => {
                     required
                 ></textarea>
             </div>
-            <button type="submit" className="bg-primary text-white px-4 py-2 rounded">Publier</button>
+            <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
+                {post ? 'Modifier' : 'Publier'}
+            </button>
         </form>
     );
 };
