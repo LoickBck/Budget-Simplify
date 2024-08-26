@@ -86,7 +86,7 @@ class Comment
 
         return $this;
     }
-    #[Groups(["blog_post"])]
+    #[Groups(["blog_post", "comment"])]
     public function getAuthorFullName(): ?string
     {
         return $this->author ? $this->author->getFullName() : null;
