@@ -7,12 +7,11 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        // Vérifiez l'état d'authentification initial
         const checkAuth = async () => {
             try {
                 const response = await fetch('/api/check-auth', {
                     method: 'GET',
-                    credentials: 'include' // Inclure les cookies
+                    credentials: 'include', // Inclure les cookies
                 });
 
                 if (response.ok) {
@@ -24,7 +23,7 @@ export const AuthProvider = ({ children }) => {
                     setUser(null);
                 }
             } catch (error) {
-                console.error('Erreur lors de la vérification de l\'authentification:', error);
+                console.error("Erreur lors de la vérification de l'authentification:", error);
                 setIsAuthenticated(false);
                 setUser(null);
             }
@@ -42,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await fetch('/logout', {
                 method: 'POST',
-                credentials: 'include'
+                credentials: 'include',
             });
 
             if (response.ok) {

@@ -14,9 +14,9 @@ const Registration = ({ isLogin: initialIsLogin }) => {
         introduction: '',
         description: ''
     });
-
     const [alert, setAlert] = useState(null);
     const [validationErrors, setValidationErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false); // Nouveau state pour gérer l'état de soumission
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -33,14 +33,28 @@ const Registration = ({ isLogin: initialIsLogin }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = isLogin ? '/login' : '/register';
+        setIsSubmitting(true); // Désactiver le bouton lors de la soumission
+
+        const apiEndpoint = isLogin ? '/login' : '/register';
+        const payload = isLogin
+            ? { email: formData.email, password: formData.password }
+            : {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                password: formData.password,
+                passwordConfirm: formData.passwordConfirm,
+                introduction: formData.introduction,
+                description: formData.description
+            };
+
         try {
-            const response = await fetch(url, {
+            const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
                 credentials: 'include'
             });
 
@@ -52,19 +66,24 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                 } else {
                     throw new Error(data.message || 'Un problème est survenu, veuillez réessayer plus tard.');
                 }
+                setIsSubmitting(false); // Réactiver le bouton en cas d'erreur
                 return;
             }
 
             if (isLogin) {
-                setAlert({ type: 'success', message: 'Connexion Réussie' });
-                login(data.user); // Met à jour l'état d'authentification avec les informations de l'utilisateur
+                setAlert({ type: 'success', message: 'Connexion réussie !' });
+                login(data.user); 
+                setTimeout(() => {
+                    navigate('/', { state: { alertType: 'success', alertMessage: 'Connexion réussie !' } });
+                }, 1250);
             } else {
-                setAlert({ type: 'success', message: 'L\'utilisateur a été enregistré avec succès.' });
-            }
-            navigate('/'); // Redirection après succès
+                setAlert({ type: 'success', message: 'Compte créé avec succès !' });
+                setIsLogin(true);
+            }            
         } catch (error) {
             console.error('Error:', error);
             setAlert({ type: 'error', message: error.message });
+            setIsSubmitting(false); // Réactiver le bouton en cas d'erreur
         }
     };
 
@@ -74,7 +93,7 @@ const Registration = ({ isLogin: initialIsLogin }) => {
     };
 
     return (
-        <div className=" bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
+        <div className="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-6 mt-16 xl:mt-0">
             {alert && <Alert type={alert.type} message={alert.message} onClose={handleCloseAlert} />}
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <img className="mx-auto h-10 w-auto" src="https://www.svgrepo.com/show/301692/login.svg" alt="Workflow"/>
@@ -219,7 +238,8 @@ const Registration = ({ isLogin: initialIsLogin }) => {
                             <span className="block w-full rounded-md shadow-sm">
                                 <button
                                     type="submit"
-                                    className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-indigo active:bg-green-700 transition duration-150 ease-in-out"
+                                    disabled={isSubmitting}  // Désactiver le bouton lors de la soumission
+                                    className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-500'} focus:outline-none focus:border-green-700 focus:shadow-outline-indigo active:bg-green-700 transition duration-150 ease-in-out`}
                                 >
                                     {isLogin ? 'Connexion' : 'Enregistrement'}
                                 </button>
