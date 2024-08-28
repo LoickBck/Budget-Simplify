@@ -136,3 +136,9 @@ add_comment:
     path: /api/blog-posts/{id}/comments
     controller: App\Controller\CommentController::addComment
     methods: POST
+
+react_routing:
+    path: /{reactRouting}
+    controller: App\Controller\DefaultController::index
+    requirements:
+        reactRouting: .*
