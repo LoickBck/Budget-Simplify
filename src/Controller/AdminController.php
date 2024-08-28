@@ -224,6 +224,62 @@ class AdminController extends AbstractController
         return new JsonResponse($blogData);
     }
 
+    #[Route('/api/admin/blogs/{id}', name: 'admin_blog_show', methods: ['GET'])]
+    public function showBlogPost(int $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $blogPost = $this->blogPostRepository->find($id);
+
+        if (!$blogPost) {
+            return new JsonResponse(['error' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $blogPostData = [
+            'id' => $blogPost->getId(),
+            'title' => $blogPost->getTitle(),
+            'content' => $blogPost->getContent(),
+            'authorName' => $blogPost->getAuthorFullName(),
+            'image' => $blogPost->getImage(),
+            'date' => $blogPost->getDate()->format('Y-m-d'),
+            'category' => $blogPost->getCategory(),
+            'excerpt' => $blogPost->getExcerpt(),
+        ];
+
+        return new JsonResponse($blogPostData);
+    }
+
+    #[Route('/api/admin/blogs', name: 'admin_blog_create', methods: ['POST'])]
+    public function createBlogPost(Request $request): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        try {
+            $data = $request->toArray();
+
+            // Validate required fields
+            if (empty($data['title']) || empty($data['content']) || empty($data['authorName'])) {
+                return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $blogPost = new BlogPost();
+            $blogPost->setTitle($data['title']);
+            $blogPost->setContent($data['content']);
+            $blogPost->setAuthorFullName($data['authorName']);
+            $blogPost->setImage($data['image'] ?? '');
+            $blogPost->setDate(new \DateTime($data['date'] ?? 'now'));
+            $blogPost->setCategory($data['category'] ?? '');
+            $blogPost->setExcerpt($data['excerpt'] ?? '');
+
+            $this->entityManager->persist($blogPost);
+            $this->entityManager->flush();
+
+            return new JsonResponse(['status' => 'Blog post created'], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     #[Route('/api/admin/blogs/{id}', name: 'admin_blog_edit', methods: ['PUT'])]
     public function editBlogPost(int $id, Request $request): JsonResponse
     {
@@ -262,7 +318,7 @@ class AdminController extends AbstractController
             $blogPost = $this->blogPostRepository->find($id);
 
             if (!$blogPost) {
-                return new JsonResponse(['error' => 'Blog not found'], Response::HTTP_NOT_FOUND);
+                return new JsonResponse(['error' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
             }
 
             $this->entityManager->remove($blogPost);

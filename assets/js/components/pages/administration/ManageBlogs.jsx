@@ -14,7 +14,7 @@ const ManageBlogs = () => {
 
     const deleteBlog = (id) => {
         if (window.confirm("Voulez-vous vraiment supprimer ce blog?")) {
-            fetch(`/api/admin/blogs/${id}/delete`, { method: 'DELETE' })
+            fetch(`/api/admin/blogs/${id}`, { method: 'DELETE' })
                 .then(response => {
                     if (response.ok) {
                         setBlogs(blogs.filter(blog => blog.id !== id));

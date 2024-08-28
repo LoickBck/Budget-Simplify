@@ -142,6 +142,7 @@ admin_dashboard:
     controller: App\Controller\AdminController::dashboard
     methods: [GET]
 
+# User Routes
 admin_manage_users:
     path: /api/admin/users
     controller: App\Controller\AdminController::manageUsers
@@ -150,12 +151,17 @@ admin_manage_users:
 admin_user_create:
     path: /api/admin/users/create
     controller: App\Controller\AdminController::createUser
-    methods: [GET, POST]
+    methods: [GET , POST]
+
+admin_user_show:
+    path: /api/admin/users/{id}
+    controller: App\Controller\AdminController::showUser
+    methods: [GET]
 
 admin_user_edit:
     path: /api/admin/users/{id}/edit
     controller: App\Controller\AdminController::editUser
-    methods: [GET, POST]
+    methods: [GET , POST]
 
 admin_user_update:
     path: /api/admin/users/{id}
@@ -167,21 +173,33 @@ admin_user_delete:
     controller: App\Controller\AdminController::deleteUser
     methods: [DELETE]
 
+# Blog Routes
 admin_manage_blogs:
     path: /api/admin/blogs
     controller: App\Controller\AdminController::manageBlogs
     methods: [GET]
 
-admin_blog_edit:
-    path: /api/admin/blogs/{id}/edit
-    controller: App\Controller\AdminController::editBlogPost
-    methods: [GET, POST]
-
-admin_blog_delete:
-    path: /api/admin/blogs/{id}/delete
-    controller: App\Controller\AdminController::deleteBlogPost
+admin_blog_create:
+    path: /api/admin/blogs
+    controller: App\Controller\AdminController::createBlogPost
     methods: [POST]
 
+admin_blog_show:
+    path: /api/admin/blogs/{id}
+    controller: App\Controller\AdminController::showBlogPost
+    methods: [GET]
+
+admin_blog_edit:
+    path: /api/admin/blogs/{id}
+    controller: App\Controller\AdminController::editBlogPost
+    methods: [PUT]
+
+admin_blog_delete:
+    path: /api/admin/blogs/{id}
+    controller: App\Controller\AdminController::deleteBlogPost
+    methods: [DELETE]
+
+# Comment Routes
 admin_manage_comments:
     path: /api/admin/comments
     controller: App\Controller\AdminController::manageComments
@@ -190,22 +208,23 @@ admin_manage_comments:
 admin_comment_edit:
     path: /api/admin/comments/{id}/edit
     controller: App\Controller\AdminController::editComment
-    methods: [GET, POST]
+    methods: [PUT]
 
 admin_comment_delete:
-    path: /api/admin/comments/{id}/delete
+    path: /api/admin/comments/{id}
     controller: App\Controller\AdminController::deleteComment
-    methods: [POST]
+    methods: [DELETE]
 
+# Authentication Routes
 admin_login:
     path: /api/admin/login
     controller: App\Controller\AdminController::login
-    methods: [GET, POST]
+    methods: [POST]
 
 admin_logout:
     path: /api/admin/logout
     controller: App\Controller\AdminController::logout
-    methods: [GET, POST]
+    methods: [POST]
 
 react_routing:
     path: /{reactRouting}
