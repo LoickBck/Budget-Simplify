@@ -66,6 +66,19 @@ class AdminController extends AbstractController
     }
 
     // Gestion des utilisateurs
+    #[Route('/api/admin/roles', name: 'admin_roles_list', methods: ['GET'])]
+    public function listRoles(): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // Récupération des rôles disponibles depuis les configurations de sécurité ou services
+        $roles = $this->getParameter('security.role_hierarchy.roles'); // Adapte selon ton besoin
+        // On transforme les rôles en un tableau simple
+        $roleList = array_keys($roles);
+
+        return new JsonResponse($roleList);
+    }
+
     #[Route('/api/admin/users', name: 'admin_manage_users', methods: ['GET'])]
     public function manageUsers(): JsonResponse
     {
@@ -151,34 +164,41 @@ class AdminController extends AbstractController
     public function editUser(int $id, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-    
+
         try {
             $user = $this->userRepository->find($id);
-    
+
             if (!$user) {
                 return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
             }
-    
+
             $data = $request->toArray();
-    
-            // Validate email if provided
+
+            // Validation de l'email si fourni
             if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 return new JsonResponse(['error' => 'Invalid email format'], Response::HTTP_BAD_REQUEST);
             }
-    
+
+            // Mise à jour des champs de l'utilisateur
             $user->setFirstName($data['firstName'] ?? $user->getFirstName());
             $user->setLastName($data['lastName'] ?? $user->getLastName());
             $user->setEmail($data['email'] ?? $user->getEmail());
             $user->setIntroduction($data['introduction'] ?? $user->getIntroduction());
             $user->setDescription($data['description'] ?? $user->getDescription());
-    
+
+            // Mise à jour des rôles de l'utilisateur
+            if (isset($data['roles']) && is_array($data['roles'])) {
+                $user->setRoles($data['roles']);
+            }
+
             $this->entityManager->flush();
-    
+
             return new JsonResponse(['status' => 'User updated']);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     #[Route('/api/admin/users/{id}', name: 'admin_user_delete', methods: ['DELETE'])]
     public function deleteUser(int $id): JsonResponse

@@ -21,7 +21,6 @@ import Legal from './components/partials/Legal';
 import PrivacyPolicy from './components/partials/PrivacyPolicy';
 import '../styles/app.css';
 
-// Import des composants d'administration
 import ManageUsers from './components/pages/administration/ManageUsers';
 import ManageBlogs from './components/pages/administration/ManageBlogs';
 import ManageComments from './components/pages/administration/ManageComments';
@@ -30,7 +29,6 @@ import UserEdit from './components/pages/administration/UserEdit';
 import BlogEdit from './components/pages/administration/BlogEdit';
 import CommentEdit from './components/pages/administration/CommentEdit';
 import AdminDashboard from './components/pages/administration/Dashboard';
-import AdminLogin from './components/pages/administration/Login';
 
 function App() {
   return (
@@ -59,15 +57,14 @@ function App() {
               <Route path="/privacy" element={<PrivacyPolicy />} />
 
               {/* Routes pour l'administration */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-              <Route path="/admin/users" element={<PrivateRoute><ManageUsers /></PrivateRoute>} />
-              <Route path="/admin/users/create" element={<PrivateRoute><UserCreate /></PrivateRoute>} />
-              <Route path="/admin/users/:id/edit" element={<PrivateRoute><UserEdit /></PrivateRoute>} />
-              <Route path="/admin/blogs" element={<PrivateRoute><ManageBlogs /></PrivateRoute>} />
-              <Route path="/admin/blogs/:id/edit" element={<PrivateRoute><BlogEdit /></PrivateRoute>} />
-              <Route path="/admin/comments" element={<PrivateRoute><ManageComments /></PrivateRoute>} />
-              <Route path="/admin/comments/:id/edit" element={<PrivateRoute><CommentEdit /></PrivateRoute>} />
+              <Route path="/admin" element={<PrivateRoute admin={true}><AdminDashboard /></PrivateRoute>} />
+              <Route path="/admin/users" element={<PrivateRoute admin={true}><ManageUsers /></PrivateRoute>} />
+              <Route path="/admin/users/create" element={<PrivateRoute admin={true}><UserCreate /></PrivateRoute>} />
+              <Route path="/admin/users/:id/edit" element={<PrivateRoute admin={true}><UserEdit /></PrivateRoute>} />
+              <Route path="/admin/blogs" element={<PrivateRoute admin={true}><ManageBlogs /></PrivateRoute>} />
+              <Route path="/admin/blogs/:id/edit" element={<PrivateRoute admin={true}><BlogEdit /></PrivateRoute>} />
+              <Route path="/admin/comments" element={<PrivateRoute admin={true}><ManageComments /></PrivateRoute>} />
+              <Route path="/admin/comments/:id/edit" element={<PrivateRoute admin={true}><CommentEdit /></PrivateRoute>} />
             </Routes>
           </div>
           <ConditionalFooter />
@@ -99,23 +96,23 @@ const ConditionalFooter = () => {
   return <Footer />;
 };
 
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = ({ children, admin }) => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="relative">
           <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
-          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin">
-          </div>
+          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin"></div>
         </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: location }} />;
   }
 
   return children;

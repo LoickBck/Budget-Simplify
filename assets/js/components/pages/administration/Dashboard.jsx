@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';  // Import Link from react-router-dom
+import { Link, useNavigate } from 'react-router-dom'; 
 import Navbar from './Navbar';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({ totalUsers: 0, totalBlogs: 0, totalComments: 0 });
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         // Fetch stats from the API
-        fetch('/api/admin/stats')
+        fetch('/api/admin/stats', { credentials: 'include' }) 
             .then(response => {
+                if (response.status === 401) {
+                    navigate('/admin/login');
+                    return null; 
+                }
                 if (!response.ok) {
                     throw new Error('Failed to fetch stats');
                 }
                 return response.json();
             })
-            .then(data => setStats(data))
+            .then(data => {
+                if (data) {
+                    setStats(data);
+                }
+            })
             .catch(error => console.error('Error fetching stats:', error));
-    }, []);
+    }, [navigate]);
 
     return (
         <div>

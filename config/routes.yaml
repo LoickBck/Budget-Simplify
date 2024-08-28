@@ -220,6 +220,15 @@ admin_comment_delete:
     controller: App\Controller\AdminController::deleteComment
     methods: [DELETE]
 
+admin_roles_list:
+    path: /api/admin/roles
+    controller: App\Controller\AdminController::listRoles
+    methods: [GET]
+
+admin_user_update_roles:
+    path: /api/admin/users/{id}/roles
+    controller: App\Controller\AdminController::editUserRoles
+    methods: [PUT]
 
 # Authentication Routes
 admin_login:
