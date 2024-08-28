@@ -342,10 +342,31 @@ class AdminController extends AbstractController
             return [
                 'id' => $comment->getId(),
                 'content' => $comment->getContent(),
-                'authorName' => $comment->getAuthorFullName(), // Assurez-vous que cette méthode existe dans l'entité Comment
-                'blogPostId' => $comment->getBlogPost()->getId(), // Assurez-vous que cette relation existe dans l'entité Comment
+                'blogPostId' => $comment->getBlogPost()->getId(),
+                'authorName' => $comment->getAuthorFullName(),
             ];
         }, $comments);
+
+        return new JsonResponse($commentData);
+    }
+
+    #[Route('/api/admin/comments/{id}', name: 'admin_comment_show', methods: ['GET'])]
+    public function showComment(int $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $comment = $this->commentRepository->find($id);
+
+        if (!$comment) {
+            return new JsonResponse(['error' => 'Comment not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $commentData = [
+            'id' => $comment->getId(),
+            'content' => $comment->getContent(),
+            'authorName' => $comment->getAuthorFullName(),
+            'blogPostId' => $comment->getBlogPost()->getId(),
+        ];
 
         return new JsonResponse($commentData);
     }

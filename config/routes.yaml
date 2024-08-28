@@ -205,8 +205,13 @@ admin_manage_comments:
     controller: App\Controller\AdminController::manageComments
     methods: [GET]
 
+admin_comment_show:
+    path: /api/admin/comments/{id}
+    controller: App\Controller\AdminController::showComment
+    methods: [GET]
+
 admin_comment_edit:
-    path: /api/admin/comments/{id}/edit
+    path: /api/admin/comments/{id}
     controller: App\Controller\AdminController::editComment
     methods: [PUT]
 
@@ -214,6 +219,7 @@ admin_comment_delete:
     path: /api/admin/comments/{id}
     controller: App\Controller\AdminController::deleteComment
     methods: [DELETE]
+
 
 # Authentication Routes
 admin_login:
