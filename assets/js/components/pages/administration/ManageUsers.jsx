@@ -50,33 +50,43 @@ const ManageUsers = () => {
             <Navbar />
             <div className="container mx-auto mt-8 px-4">
                 <h1 className="text-3xl font-bold text-primary mb-8 text-center md:text-left">Gérer les utilisateurs</h1>
-                <table className="table-auto w-full bg-white shadow rounded-lg">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-2">Nom complet</th>
-                            <th className="px-4 py-2">Email</th>
-                            <th className="px-4 py-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user) => (
-                            <tr key={user.id}>
-                                <td className="border px-4 py-2">{user.firstName} {user.lastName}</td>
-                                <td className="border px-4 py-2">{user.email}</td>
-                                <td className="border px-4 py-2">
-                                    <a href={`/admin/users/${user.id}/edit`} className="text-blue-500 hover:underline">Éditer</a>
-                                    {' | '}
-                                    <button
-                                        onClick={() => handleDelete(user.id)}
-                                        className="text-red-500 hover:underline"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="table-auto w-full bg-white shadow rounded-lg">
+                        <thead className="hidden md:table-header-group">
+                            <tr>
+                                <th className="px-4 py-2">Nom complet</th>
+                                <th className="px-4 py-2">Email</th>
+                                <th className="px-4 py-2">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="block md:table-row-group">
+                            {users.map((user) => (
+                                <tr key={user.id} className="block md:table-row mb-4 md:mb-0 border md:border-0">
+                                    <td className="block md:table-cell border-t px-4 py-2">
+                                        <span className="font-bold md:hidden">Nom complet: </span>
+                                        {user.firstName} {user.lastName}
+                                    </td>
+                                    <td className="block md:table-cell border-t px-4 py-2">
+                                        <span className="font-bold md:hidden">Email: </span>
+                                        {user.email}
+                                    </td>
+                                    <td className="block md:table-cell border-t px-4 py-2">
+                                        <span className="font-bold md:hidden">Actions: </span>
+                                        <a href={`/admin/users/${user.id}/edit`} className="text-blue-500 hover:underline inline-block mr-2">
+                                            <i className="fas fa-edit"></i>
+                                        </a>
+                                        <button
+                                            onClick={() => handleDelete(user.id)}
+                                            className="text-red-500 hover:underline inline-block"
+                                        >
+                                            <i className="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {alert.show && (
                 <Alert

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const UserEdit = () => {
     const { id } = useParams(); // Récupère l'ID de l'utilisateur à partir de l'URL
@@ -95,6 +96,8 @@ const UserEdit = () => {
     if (error) return <div className="text-red-500">Erreur : {error}</div>;
 
     return (
+        <div>
+        <Navbar />
         <div className="container mx-auto mt-8 px-4">
             <h1 className="text-3xl font-bold text-primary mb-8 text-center md:text-left">Modifier l'utilisateur</h1>
             <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto">
@@ -161,6 +164,7 @@ const UserEdit = () => {
                     </button>
                 </div>
             </form>
+        </div>
         </div>
     );
 };

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import Navbar from './Navbar';
 
 const Dashboard = () => {
@@ -35,6 +36,14 @@ const Dashboard = () => {
                         <h2 className="text-2xl font-bold">{stats.totalComments}</h2>
                         <p>Commentaires</p>
                     </div>
+                </div>
+                <div className="mt-8 flex justify-center">
+                    <Link 
+                        to="/" 
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition"
+                    >
+                        Retourner sur le site
+                    </Link>
                 </div>
             </div>
         </div>

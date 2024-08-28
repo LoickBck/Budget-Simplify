@@ -39,33 +39,43 @@ const ManageComments = () => {
             <Navbar />
             <div className="container mx-auto mt-8 px-4">
                 <h1 className="text-3xl font-bold text-primary mb-8 text-center md:text-left">Gérer les commentaires</h1>
-                <table className="table-auto w-full bg-white shadow rounded-lg">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-2">Auteur</th>
-                            <th className="px-4 py-2">Commentaire</th>
-                            <th className="px-4 py-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {comments.map((comment) => (
-                            <tr key={comment.id}>
-                                <td className="border px-4 py-2">{comment.authorName}</td>
-                                <td className="border px-4 py-2">{comment.content}</td>
-                                <td className="border px-4 py-2">
-                                    <a href={`/admin/comments/${comment.id}/edit`} className="text-blue-500 hover:underline">Éditer</a>
-                                    {' | '}
-                                    <button
-                                        onClick={() => deleteComment(comment.id)}
-                                        className="text-red-500 hover:underline"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="table-auto w-full bg-white shadow rounded-lg">
+                        <thead className="hidden md:table-header-group">
+                            <tr>
+                                <th className="px-4 py-2">Auteur</th>
+                                <th className="px-4 py-2">Commentaire</th>
+                                <th className="px-4 py-2">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="block md:table-row-group">
+                            {comments.map((comment) => (
+                                <tr key={comment.id} className="block md:table-row mb-4 md:mb-0 border md:border-0">
+                                    <td className="block md:table-cell border-t px-4 py-2">
+                                        <span className="font-bold md:hidden">Auteur: </span>
+                                        {comment.authorName}
+                                    </td>
+                                    <td className="block md:table-cell border-t px-4 py-2">
+                                        <span className="font-bold md:hidden">Commentaire: </span>
+                                        {comment.content}
+                                    </td>
+                                    <td className="block md:table-cell border-t px-4 py-2">
+                                        <span className="font-bold md:hidden">Actions: </span>
+                                        <a href={`/admin/comments/${comment.id}/edit`} className="text-blue-500 hover:underline inline-block mr-2">
+                                            <i className="fas fa-edit"></i>
+                                        </a>
+                                        <button
+                                            onClick={() => deleteComment(comment.id)}
+                                            className="text-red-500 hover:underline inline-block"
+                                        >
+                                            <i className="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {alert.show && (
                 <Alert
