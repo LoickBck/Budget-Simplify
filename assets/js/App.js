@@ -21,6 +21,17 @@ import Legal from './components/partials/Legal';
 import PrivacyPolicy from './components/partials/PrivacyPolicy';
 import '../styles/app.css';
 
+// Import des composants d'administration
+import ManageUsers from './components/pages/administration/ManageUsers';
+import ManageBlogs from './components/pages/administration/ManageBlogs';
+import ManageComments from './components/pages/administration/ManageComments';
+import UserCreate from './components/pages/administration/UserCreate';
+import UserEdit from './components/pages/administration/UserEdit';
+import BlogEdit from './components/pages/administration/BlogEdit';
+import CommentEdit from './components/pages/administration/CommentEdit';
+import AdminDashboard from './components/pages/administration/Dashboard';
+import AdminLogin from './components/pages/administration/Login';
+
 function App() {
   return (
     <AuthProvider>
@@ -46,6 +57,17 @@ function App() {
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/legal" element={<Legal />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+
+              {/* Routes pour l'administration */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+              <Route path="/admin/users" element={<PrivateRoute><ManageUsers /></PrivateRoute>} />
+              <Route path="/admin/users/create" element={<PrivateRoute><UserCreate /></PrivateRoute>} />
+              <Route path="/admin/users/:id/edit" element={<PrivateRoute><UserEdit /></PrivateRoute>} />
+              <Route path="/admin/blogs" element={<PrivateRoute><ManageBlogs /></PrivateRoute>} />
+              <Route path="/admin/blogs/:id/edit" element={<PrivateRoute><BlogEdit /></PrivateRoute>} />
+              <Route path="/admin/comments" element={<PrivateRoute><ManageComments /></PrivateRoute>} />
+              <Route path="/admin/comments/:id/edit" element={<PrivateRoute><CommentEdit /></PrivateRoute>} />
             </Routes>
           </div>
           <Footer />

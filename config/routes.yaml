@@ -137,6 +137,71 @@ add_comment:
     controller: App\Controller\CommentController::addComment
     methods: POST
 
+admin_dashboard:
+    path: /api/admin/dashboard
+    controller: App\Controller\AdminController::dashboard
+    methods: [GET]
+
+admin_manage_users:
+    path: /api/admin/users
+    controller: App\Controller\AdminController::manageUsers
+    methods: [GET]
+
+admin_user_create:
+    path: /api/admin/users/create
+    controller: App\Controller\AdminController::createUser
+    methods: [GET, POST]
+
+admin_user_edit:
+    path: /api/admin/users/{id}/edit
+    controller: App\Controller\AdminController::editUser
+    methods: [GET, POST]
+
+admin_user_delete:
+    path: /api/admin/users/{id}/delete
+    controller: App\Controller\AdminController::deleteUser
+    methods: [POST]
+
+admin_manage_blogs:
+    path: /api/admin/blogs
+    controller: App\Controller\AdminController::manageBlogs
+    methods: [GET]
+
+admin_blog_edit:
+    path: /api/admin/blogs/{id}/edit
+    controller: App\Controller\AdminController::editBlogPost
+    methods: [GET, POST]
+
+admin_blog_delete:
+    path: /api/admin/blogs/{id}/delete
+    controller: App\Controller\AdminController::deleteBlogPost
+    methods: [POST]
+
+admin_manage_comments:
+    path: /api/admin/comments
+    controller: App\Controller\AdminController::manageComments
+    methods: [GET]
+
+admin_comment_edit:
+    path: /api/admin/comments/{id}/edit
+    controller: App\Controller\AdminController::editComment
+    methods: [GET, POST]
+
+admin_comment_delete:
+    path: /api/admin/comments/{id}/delete
+    controller: App\Controller\AdminController::deleteComment
+    methods: [POST]
+
+admin_login:
+    path: /api/admin/login
+    controller: App\Controller\AdminController::login
+    methods: [GET, POST]
+
+admin_logout:
+    path: /api/admin/logout
+    controller: App\Controller\AdminController::logout
+    methods: [GET, POST]
+
 react_routing:
     path: /{reactRouting}
     controller: App\Controller\DefaultController::index
