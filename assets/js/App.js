@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/partials/Navbar';
 import Home from './components/pages/Home';
@@ -37,7 +37,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="flex flex-col min-h-screen">
-          <Navbar />
+          <ConditionalNavbar />
           <div className="flex-grow">
             <Routes>
               <Route path="*" element={<Error />} />
@@ -70,24 +70,48 @@ function App() {
               <Route path="/admin/comments/:id/edit" element={<PrivateRoute><CommentEdit /></PrivateRoute>} />
             </Routes>
           </div>
-          <Footer />
+          <ConditionalFooter />
         </div>
       </Router>
     </AuthProvider>
   );
 }
 
+const ConditionalNavbar = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  if (isAdminRoute) {
+    return null;
+  }
+
+  return <Navbar />;
+};
+
+const ConditionalFooter = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  if (isAdminRoute) {
+    return null;
+  }
+
+  return <Footer />;
+};
+
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-            <div className="relative">
-                <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
-                <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin">
-                </div>
-            </div>
-          </div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="relative">
+          <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
+          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin">
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
