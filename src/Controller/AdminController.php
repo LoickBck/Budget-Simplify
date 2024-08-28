@@ -66,7 +66,6 @@ class AdminController extends AbstractController
     }
 
     // Gestion des utilisateurs
-
     #[Route('/api/admin/users', name: 'admin_manage_users', methods: ['GET'])]
     public function manageUsers(): JsonResponse
     {
@@ -88,51 +87,97 @@ class AdminController extends AbstractController
         return new JsonResponse($userData);
     }
 
+    #[Route('/api/admin/users/{id}', name: 'admin_user_show', methods: ['GET'])]
+    public function showUser(int $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+    
+        $user = $this->userRepository->find($id);
+    
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+    
+        $userData = [
+            'id' => $user->getId(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'email' => $user->getEmail(),
+            'introduction' => $user->getIntroduction(),
+            'description' => $user->getDescription(),
+        ];
+    
+        return new JsonResponse($userData);
+    }
+    
+
     #[Route('/api/admin/users', name: 'admin_user_create', methods: ['POST'])]
     public function createUser(Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $data = $request->toArray();
+        try {
+            $data = $request->toArray();
 
-        $user = new User();
-        $user->setFirstName($data['firstName']);
-        $user->setLastName($data['lastName']);
-        $user->setEmail($data['email']);
-        $user->setPassword(
-            $this->passwordHasher->hashPassword($user, $data['password'])
-        );
-        $user->setIntroduction($data['introduction']);
-        $user->setDescription($data['description']);
+            // Validate data
+            if (empty($data['firstName']) || empty($data['lastName']) || empty($data['email']) || empty($data['password'])) {
+                return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
+            }
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                return new JsonResponse(['error' => 'Invalid email format'], Response::HTTP_BAD_REQUEST);
+            }
 
-        return new JsonResponse(['status' => 'User created'], Response::HTTP_CREATED);
+            $user = new User();
+            $user->setFirstName($data['firstName']);
+            $user->setLastName($data['lastName']);
+            $user->setEmail($data['email']);
+            $user->setPassword(
+                $this->passwordHasher->hashPassword($user, $data['password'])
+            );
+            $user->setIntroduction($data['introduction'] ?? '');
+            $user->setDescription($data['description'] ?? '');
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return new JsonResponse(['status' => 'User created'], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/api/admin/users/{id}', name: 'admin_user_edit', methods: ['PUT'])]
     public function editUser(int $id, Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $user = $this->userRepository->find($id);
-
-        if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+    
+        try {
+            $user = $this->userRepository->find($id);
+    
+            if (!$user) {
+                return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+            }
+    
+            $data = $request->toArray();
+    
+            // Validate email if provided
+            if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                return new JsonResponse(['error' => 'Invalid email format'], Response::HTTP_BAD_REQUEST);
+            }
+    
+            $user->setFirstName($data['firstName'] ?? $user->getFirstName());
+            $user->setLastName($data['lastName'] ?? $user->getLastName());
+            $user->setEmail($data['email'] ?? $user->getEmail());
+            $user->setIntroduction($data['introduction'] ?? $user->getIntroduction());
+            $user->setDescription($data['description'] ?? $user->getDescription());
+    
+            $this->entityManager->flush();
+    
+            return new JsonResponse(['status' => 'User updated']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $data = $request->toArray();
-
-        $user->setFirstName($data['firstName'] ?? $user->getFirstName());
-        $user->setLastName($data['lastName'] ?? $user->getLastName());
-        $user->setEmail($data['email'] ?? $user->getEmail());
-        $user->setIntroduction($data['introduction'] ?? $user->getIntroduction());
-        $user->setDescription($data['description'] ?? $user->getDescription());
-
-        $this->entityManager->flush();
-
-        return new JsonResponse(['status' => 'User updated']);
     }
 
     #[Route('/api/admin/users/{id}', name: 'admin_user_delete', methods: ['DELETE'])]
@@ -140,18 +185,22 @@ class AdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $user = $this->userRepository->find($id);
+        try {
+            $user = $this->userRepository->find($id);
 
-        if ($user) {
-            $this->entityManager->remove($user);
-            $this->entityManager->flush();
+            if ($user) {
+                $this->entityManager->remove($user);
+                $this->entityManager->flush();
+                return new JsonResponse(['status' => 'User deleted']);
+            }
+
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return new JsonResponse(['status' => 'User deleted']);
     }
 
     // Gestion des blogs
-
     #[Route('/api/admin/blogs', name: 'admin_manage_blogs', methods: ['GET'])]
     public function manageBlogs(): JsonResponse
     {
@@ -180,24 +229,28 @@ class AdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $blogPost = $this->blogPostRepository->find($id);
+        try {
+            $blogPost = $this->blogPostRepository->find($id);
 
-        if (!$blogPost) {
-            return new JsonResponse(['error' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
+            if (!$blogPost) {
+                return new JsonResponse(['error' => 'Blog post not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $data = $request->toArray();
+
+            $blogPost->setTitle($data['title'] ?? $blogPost->getTitle());
+            $blogPost->setContent($data['content'] ?? $blogPost->getContent());
+            $blogPost->setImage($data['image'] ?? $blogPost->getImage());
+            $blogPost->setDate(new \DateTime($data['date'] ?? $blogPost->getDate()->format('Y-m-d')));
+            $blogPost->setCategory($data['category'] ?? $blogPost->getCategory());
+            $blogPost->setExcerpt($data['excerpt'] ?? $blogPost->getExcerpt());
+
+            $this->entityManager->flush();
+
+            return new JsonResponse(['status' => 'Blog post updated']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $data = $request->toArray();
-
-        $blogPost->setTitle($data['title'] ?? $blogPost->getTitle());
-        $blogPost->setContent($data['content'] ?? $blogPost->getContent());
-        $blogPost->setImage($data['image'] ?? $blogPost->getImage());
-        $blogPost->setDate(new \DateTime($data['date'] ?? $blogPost->getDate()->format('Y-m-d')));
-        $blogPost->setCategory($data['category'] ?? $blogPost->getCategory());
-        $blogPost->setExcerpt($data['excerpt'] ?? $blogPost->getExcerpt());
-
-        $this->entityManager->flush();
-
-        return new JsonResponse(['status' => 'Blog post updated']);
     }
 
     #[Route('/api/admin/blogs/{id}', name: 'admin_blog_delete', methods: ['DELETE'])]
@@ -205,20 +258,23 @@ class AdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $blogPost = $this->blogPostRepository->find($id);
+        try {
+            $blogPost = $this->blogPostRepository->find($id);
 
-        if (!$blogPost) {
-            return new JsonResponse(['error' => 'Blog not found'], 404);
+            if (!$blogPost) {
+                return new JsonResponse(['error' => 'Blog not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $this->entityManager->remove($blogPost);
+            $this->entityManager->flush();
+
+            return new JsonResponse(['status' => 'Blog deleted']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    
-        $this->entityManager->remove($blogPost);
-        $this->entityManager->flush(); 
-
-        return new JsonResponse(['success' => 'Blog deleted'], 200);
     }
 
     // Gestion des commentaires
-
     #[Route('/api/admin/comments', name: 'admin_manage_comments', methods: ['GET'])]
     public function manageComments(): JsonResponse
     {
@@ -243,19 +299,23 @@ class AdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $comment = $this->commentRepository->find($id);
+        try {
+            $comment = $this->commentRepository->find($id);
 
-        if (!$comment) {
-            return new JsonResponse(['error' => 'Comment not found'], Response::HTTP_NOT_FOUND);
+            if (!$comment) {
+                return new JsonResponse(['error' => 'Comment not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $data = $request->toArray();
+
+            $comment->setContent($data['content'] ?? $comment->getContent());
+
+            $this->entityManager->flush();
+
+            return new JsonResponse(['status' => 'Comment updated']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $data = $request->toArray();
-
-        $comment->setContent($data['content'] ?? $comment->getContent());
-
-        $this->entityManager->flush();
-
-        return new JsonResponse(['status' => 'Comment updated']);
     }
 
     #[Route('/api/admin/comments/{id}', name: 'admin_comment_delete', methods: ['DELETE'])]
@@ -263,18 +323,22 @@ class AdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $comment = $this->commentRepository->find($id);
+        try {
+            $comment = $this->commentRepository->find($id);
 
-        if ($comment) {
-            $this->entityManager->remove($comment);
-            $this->entityManager->flush();
+            if ($comment) {
+                $this->entityManager->remove($comment);
+                $this->entityManager->flush();
+                return new JsonResponse(['status' => 'Comment deleted']);
+            }
+
+            return new JsonResponse(['error' => 'Comment not found'], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return new JsonResponse(['status' => 'Comment deleted']);
     }
 
     // Connexion et déconnexion de l'administration
-
     #[Route('/api/admin/login', name: 'admin_login', methods: ['POST'])]
     public function login(AuthenticationUtils $authenticationUtils): JsonResponse
     {

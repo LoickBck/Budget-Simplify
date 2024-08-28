@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
+import Alert from '../../utils/Alert'; 
 
 const ManageUsers = () => {
     const [users, setUsers] = useState([]);
+    const [alert, setAlert] = useState({ show: false, type: '', message: '' });
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         // Fetch users from the API
@@ -12,7 +15,13 @@ const ManageUsers = () => {
             .then(response => response.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error fetching users:', error));
-    }, []);
+
+        // Check if there's an alert message passed from the previous page (UserEdit)
+        if (location.state && location.state.alert) {
+            setAlert({ show: true, ...location.state.alert });
+            navigate(location.pathname, { replace: true, state: {} }); // Clear the state to prevent the alert from reappearing
+        }
+    }, [location, navigate]);
 
     const handleDelete = async (userId) => {
         if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
@@ -24,12 +33,14 @@ const ManageUsers = () => {
 
                 if (response.ok) {
                     setUsers(users.filter(user => user.id !== userId));
+                    setAlert({ show: true, type: 'success', message: 'Utilisateur supprimé avec succès.' });
                 } else {
-                    throw new Error('Failed to delete user');
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete user');
                 }
             } catch (error) {
                 console.error('Error deleting user:', error);
-                alert('Une erreur est survenue lors de la suppression de l\'utilisateur.');
+                setAlert({ show: true, type: 'error', message: 'Une erreur est survenue lors de la suppression de l\'utilisateur.' });
             }
         }
     };
@@ -67,6 +78,13 @@ const ManageUsers = () => {
                     </tbody>
                 </table>
             </div>
+            {alert.show && (
+                <Alert
+                    type={alert.type}
+                    message={alert.message}
+                    onClose={() => setAlert({ show: false, type: '', message: '' })}
+                />
+            )}
         </div>
     );
 };

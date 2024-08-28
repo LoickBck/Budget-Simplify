@@ -1,8 +1,6 @@
 ### Encore à faire ###
 
-Finir l'administration , pour gérer les utilisateurs , les blogs et les commentaires 
-Modifier la FAQ
-Mot de passe perdu
+Front-end de l'administration
 
 ### Améliorations possibles ###
 

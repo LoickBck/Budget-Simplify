@@ -27,6 +27,11 @@ const UserEdit = () => {
                     throw new Error('Failed to fetch user data');
                 }
 
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error('Received non-JSON response');
+                }
+
                 const data = await response.json();
                 setUser(data);
                 setLoading(false);
@@ -39,6 +44,11 @@ const UserEdit = () => {
         fetchUser();
     }, [id]);
 
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    };
+
     const handleChange = (e) => {
         setUser({
             ...user,
@@ -48,6 +58,12 @@ const UserEdit = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validation des champs avant soumission
+        if (!user.firstName || !user.lastName || !validateEmail(user.email)) {
+            setError('Veuillez remplir tous les champs requis avec des informations valides.');
+            return;
+        }
 
         try {
             const response = await fetch(`/api/admin/users/${id}`, {
@@ -60,17 +76,23 @@ const UserEdit = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update user');
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error('Received non-JSON response');
+                }
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update user');
             }
 
-            navigate('/admin/users');
+            // Redirection avec un message de succès
+            navigate('/admin/users', { state: { alert: { type: 'success', message: 'Utilisateur modifié avec succès.' } } });
         } catch (err) {
             setError(err.message);
         }
     };
 
     if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (error) return <div className="text-red-500">Erreur : {error}</div>;
 
     return (
         <div className="container mx-auto mt-8 px-4">
@@ -132,6 +154,7 @@ const UserEdit = () => {
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                     />
                 </div>
+                {error && <div className="text-red-500">{error}</div>}
                 <div className="flex justify-end">
                     <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-secondary">
                         Mettre à jour

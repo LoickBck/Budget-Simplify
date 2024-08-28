@@ -157,10 +157,15 @@ admin_user_edit:
     controller: App\Controller\AdminController::editUser
     methods: [GET, POST]
 
+admin_user_update:
+    path: /api/admin/users/{id}
+    controller: App\Controller\AdminController::editUser
+    methods: [PUT]
+
 admin_user_delete:
-    path: /api/admin/users/{id}/delete
+    path: /api/admin/users/{id}
     controller: App\Controller\AdminController::deleteUser
-    methods: [POST]
+    methods: [DELETE]
 
 admin_manage_blogs:
     path: /api/admin/blogs
@@ -206,4 +211,4 @@ react_routing:
     path: /{reactRouting}
     controller: App\Controller\DefaultController::index
     requirements:
-        reactRouting: .*
+        reactRouting: ^(?!api).*
