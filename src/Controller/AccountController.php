@@ -139,14 +139,18 @@ class AccountController extends AbstractController
             return new JsonResponse(['message' => 'Informations mises à jour avec succès'], Response::HTTP_OK);
         }
 
-        return new JsonResponse([
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'firstName' => $user->getFirstName(),
-            'lastName' => $user->getLastName(),
-            'introduction' => $user->getIntroduction(),
-            'description' => $user->getDescription(),
-            'slug' => $user->getSlug(),
-        ]);
+        if ($request->headers->get('Accept') === 'application/json') {
+            return new JsonResponse([
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'introduction' => $user->getIntroduction(),
+                'description' => $user->getDescription(),
+                'slug' => $user->getSlug(),
+            ]);
+        }
+
+        return $this->render('base.html.twig');
     }
 }

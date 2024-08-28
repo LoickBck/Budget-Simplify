@@ -21,6 +21,9 @@ const Category = () => {
         try {
             const response = await fetch('/categories', {
                 method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
                 credentials: 'include'
             });
             const data = await response.json();
@@ -45,6 +48,7 @@ const Category = () => {
             const response = await fetch(url, {
                 method: method,
                 headers: {
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData),
@@ -85,6 +89,9 @@ const Category = () => {
         try {
             const response = await fetch(`/categories/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                },
                 credentials: 'include'
             });
 

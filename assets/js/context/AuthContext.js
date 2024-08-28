@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -5,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true); // Ajout de l'état de chargement
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -26,6 +28,8 @@ export const AuthProvider = ({ children }) => {
                 console.error("Erreur lors de la vérification de l'authentification:", error);
                 setIsAuthenticated(false);
                 setUser(null);
+            } finally {
+                setLoading(false); // Fin du chargement après la vérification
             }
         };
 
@@ -35,6 +39,7 @@ export const AuthProvider = ({ children }) => {
     const login = (userData) => {
         setIsAuthenticated(true);
         setUser(userData);
+        setLoading(false); // Fin du chargement après le login
     };
 
     const logout = async () => {
@@ -54,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

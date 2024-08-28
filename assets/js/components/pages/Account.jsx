@@ -34,6 +34,9 @@ const Account = () => {
         try {
             const response = await fetch('/account', {
                 method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
                 credentials: 'include'
             });
             if (response.ok) {
@@ -75,7 +78,8 @@ const Account = () => {
             const response = await fetch('/account', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify(formData),
                 credentials: 'include'
@@ -111,6 +115,7 @@ const Account = () => {
             const response = await fetch('/update-password', {
                 method: 'POST',
                 headers: {
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(passwordData),
