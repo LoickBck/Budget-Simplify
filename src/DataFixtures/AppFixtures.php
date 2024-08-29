@@ -112,7 +112,6 @@ class AppFixtures extends Fixture
                 ->setAmount($faker->randomFloat(2, 10, 1000))
                 ->setCategory($faker->randomElement($categoryEntities))
                 ->setUser($defaultUser)
-                ->setIsRegular($faker->boolean())
                 ->setDate($faker->dateTimeBetween('-2 years', 'now'));
 
             $manager->persist($expense);
@@ -125,7 +124,6 @@ class AppFixtures extends Fixture
                 ->setAmount($faker->randomFloat(2, 1000, 5000))
                 ->setCategory($faker->randomElement($categoryEntities))
                 ->setUser($defaultUser)
-                ->setIsRegular($faker->boolean())
                 ->setDate($faker->dateTimeBetween('-2 years', 'now'));
 
             $manager->persist($income);
