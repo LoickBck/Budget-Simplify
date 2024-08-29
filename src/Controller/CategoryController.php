@@ -23,26 +23,23 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/categories', name: 'category_index', methods: ['GET'])]
-    public function index(Request $request): Response
+    public function index(): JsonResponse
     {
-        if ($request->headers->get('Accept') === 'application/json') {
-            $user = $this->getUser();
-            $categories = $this->categoryRepository->findBy(['user' => $user]);
+        $user = $this->getUser();
+        $categories = $this->categoryRepository->findBy(['user' => $user]);
 
-            $data = [];
-            foreach ($categories as $category) {
-                $data[] = [
-                    'id' => $category->getId(),
-                    'name' => $category->getName(),
-                    'description' => $category->getDescription(),
-                ];
-            }
-
-            return new JsonResponse($data);
+        $data = [];
+        foreach ($categories as $category) {
+            $data[] = [
+                'id' => $category->getId(),
+                'name' => $category->getName(),
+                'description' => $category->getDescription(),
+            ];
         }
 
-        return $this->render('base.html.twig');
+        return new JsonResponse($data);
     }
+
 
     #[Route('/categories', name: 'category_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
