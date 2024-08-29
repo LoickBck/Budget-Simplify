@@ -35,8 +35,7 @@ class AppFixtures extends Fixture
             ->setEmail('loickbuck@hotmail.com')
             ->setIntroduction('Lorem ipsum dolor sit amet')
             ->setDescription('Lorem ipsum dolor sit amet, consectetur adipiscing elit')
-            ->setPassword($defaultHash)
-            ->setPicture('https://picsum.photos/seed/picsum/500/500');
+            ->setPassword($defaultHash);
 
         $manager->persist($defaultUser);
 
@@ -68,8 +67,7 @@ class AppFixtures extends Fixture
                 ->setEmail($faker->email())
                 ->setIntroduction($faker->sentence())
                 ->setDescription('<p>' . join('</p><p>', $faker->paragraphs(3)) . '</p>')
-                ->setPassword($hash)
-                ->setPicture($picture);
+                ->setPassword($hash);
 
             $manager->persist($user);
             $users[] = $user;
