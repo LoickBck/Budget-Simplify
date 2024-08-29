@@ -10,43 +10,43 @@ const Contact = () => {
   const faqData = [
     {
       question: "Comment puis-je créer un compte ?",
-      answer: "Pour créer un compte, cliquez sur le bouton 'S'inscrire' en haut à droite de la page d'accueil et remplissez le formulaire d'inscription."
+      answer: "Pour créer un compte, cliquez sur le bouton 'S'inscrire' en haut à droite de la page d'accueil et remplissez le formulaire d'inscription avec vos informations personnelles."
+    },
+    {
+      question: "Quels sont les avantages de l'abonnement premium ?",
+      answer: "L'abonnement premium vous donne accès à des fonctionnalités exclusives telles que des rapports avancés, un support prioritaire, et des intégrations avec d'autres services financiers."
     },
     {
       question: "Comment puis-je réinitialiser mon mot de passe ?",
-      answer: "Pour réinitialiser votre mot de passe, cliquez sur 'Mot de passe oublié' sur la page de connexion et suivez les instructions."
+      answer: "Si vous avez oublié votre mot de passe, cliquez sur 'Mot de passe oublié' sur la page de connexion. Nous vous enverrons un email avec les instructions pour réinitialiser votre mot de passe."
     },
     {
-      question: "Comment puis-je contacter le support ?",
-      answer: "Vous pouvez nous contacter via le formulaire de contact ci-dessus ou en envoyant un email à support@exemple.com."
+      question: "Est-ce que mes données sont sécurisées ?",
+      answer: "Oui, nous utilisons des protocoles de sécurité avancés pour protéger vos données personnelles et financières. Toutes vos informations sont cryptées et stockées de manière sécurisée."
+    },
+    {
+      question: "Puis-je annuler mon abonnement à tout moment ?",
+      answer: "Absolument, vous pouvez annuler votre abonnement à tout moment via les paramètres de votre compte. Il n'y a aucun frais caché."
+    },
+    {
+      question: "Comment puis-je contacter le support client ?",
+      answer: "Vous pouvez nous contacter via le formulaire de contact sur cette page, ou envoyer un email directement à support@budgetsimplify.com. Nous répondons généralement sous 24 heures."
     },
     {
       question: "Quels modes de paiement acceptez-vous ?",
-      answer: "Nous acceptons les paiements par carte de crédit, PayPal et virement bancaire."
+      answer: "Nous acceptons les paiements par carte de crédit, PayPal et virement bancaire. Vous pouvez gérer vos informations de paiement dans les paramètres de votre compte."
     },
     {
-      question: "Puis-je annuler mon abonnement ?",
-      answer: "Oui, vous pouvez annuler votre abonnement à tout moment depuis les paramètres de votre compte."
-    },
-    {
-      question: "Comment puis-je mettre à jour mes informations personnelles ?",
-      answer: "Pour mettre à jour vos informations personnelles, connectez-vous à votre compte et accédez à la section 'Mon profil'."
-    },
-    {
-      question: "Offrez-vous un essai gratuit ?",
-      answer: "Oui, nous offrons un essai gratuit de 14 jours pour tous les nouveaux utilisateurs."
-    },
-    {
-      question: "Comment puis-je changer mon plan d'abonnement ?",
-      answer: "Pour changer votre plan d'abonnement, rendez-vous dans les paramètres de votre compte et sélectionnez 'Changer de plan'."
-    },
-    {
-      question: "Puis-je partager mon compte avec d'autres personnes ?",
-      answer: "Non, le partage de compte est strictement interdit. Chaque utilisateur doit avoir son propre compte."
+      question: "Offrez-vous des réductions pour les étudiants ?",
+      answer: "Oui, nous offrons des réductions spéciales pour les étudiants. Contactez notre support avec une preuve de votre statut d'étudiant pour en savoir plus."
     },
     {
       question: "Comment puis-je supprimer mon compte ?",
-      answer: "Pour supprimer votre compte, veuillez contacter notre support via le formulaire de contact ou par email."
+      answer: "Si vous souhaitez supprimer votre compte, veuillez contacter notre support client. Notez que cette action est irréversible et entraînera la perte de toutes vos données."
+    },
+    {
+      question: "Puis-je partager mon compte avec d'autres personnes ?",
+      answer: "Pour des raisons de sécurité, le partage de compte est strictement interdit. Chaque utilisateur doit avoir son propre compte."
     }
   ];
 
@@ -70,7 +70,7 @@ const Contact = () => {
           <textarea placeholder="Message..." className="w-full p-3 border border-gray-300 rounded h-[300px]"></textarea>
         </div>
         <div>
-          <button type="submit" className="bg-primary text-white px-6 py-3 rounded">Envoyer</button>
+          <button type="submit" className="bg-primary text-white px-6 py-3 rounded transition transform hover:scale-105 hover:bg-primary-dark">Envoyer</button>
         </div>
       </form>
 
@@ -95,15 +95,15 @@ const Contact = () => {
       <div className="h-1 bg-primary w-20 mb-6"></div>
       <div className="space-y-4">
         {faqData.map((item, index) => (
-          <div key={index} className="border border-gray-300 rounded">
+          <div key={index} className="border border-gray-300 rounded overflow-hidden">
             <button
-              className="w-full text-left p-4 font-semibold focus:outline-none"
+              className="w-full text-left p-4 font-semibold focus:outline-none transition transform hover:scale-[102%] hover:bg-gray-100"
               onClick={() => toggleExpand(index)}
             >
               {item.question}
             </button>
             {expanded === index && (
-              <div className="p-4 border-t border-gray-300">
+              <div className="p-4 border-t border-gray-300 animate-fade-in">
                 {item.answer}
               </div>
             )}

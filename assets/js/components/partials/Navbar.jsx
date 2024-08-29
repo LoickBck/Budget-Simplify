@@ -57,9 +57,6 @@ const Navbar = () => {
                                     <Link to="/transactions" className="block px-4 py-2" onClick={closeMenus}>Transactions</Link>
                                 </li>
                                 <li className="hover:bg-primary_light rounded">
-                                    <Link to="/budgets" className="block px-4 py-2" onClick={closeMenus}>Budget</Link>
-                                </li>
-                                <li className="hover:bg-primary_light rounded">
                                     <Link to="/categories" className="block px-4 py-2" onClick={closeMenus}>Catégories</Link>
                                 </li>
                             </ul>
@@ -127,7 +124,6 @@ const Navbar = () => {
                                     <li className="hover:bg-primary_light rounded"><Link to="/dashboard" className="block px-4 py-2" onClick={closeMenus}>Résumé</Link></li>
                                     <li className="hover:bg-primary_light rounded"><Link to="/report" className="block px-4 py-2" onClick={closeMenus}>Rapport</Link></li>
                                     <li className="hover:bg-primary_light rounded"><Link to="/transactions" className="block px-4 py-2" onClick={closeMenus}>Transactions</Link></li>
-                                    <li className="hover:bg-primary_light rounded"><Link to="/budgets" className="block px-4 py-2" onClick={closeMenus}>Budgets</Link></li>
                                     <li className="hover:bg-primary_light rounded"><Link to="/categories" className="block px-4 py-2" onClick={closeMenus}>Catégories</Link></li>
                                 </ul>
                             )}

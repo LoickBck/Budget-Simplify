@@ -6,6 +6,7 @@ import Alert from '../utils/Alert';
 
 const BlogList = () => {
     const [posts, setPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); // État pour gérer le chargement
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { isAuthenticated } = useAuth();
     const [alert, setAlert] = useState(null); // État pour gérer l'alerte
@@ -24,9 +25,11 @@ const BlogList = () => {
     }, [location]);
 
     const fetchBlogPosts = async () => {
+        setIsLoading(true); // Début du chargement
         const response = await fetch('/api/blog-posts');
         const data = await response.json();
         setPosts(data);
+        setIsLoading(false); // Fin du chargement
     };
 
     const handleOpenModal = () => {
@@ -36,6 +39,17 @@ const BlogList = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="relative">
+                    <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
+                    <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto py-16">

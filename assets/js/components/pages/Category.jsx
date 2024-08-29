@@ -165,7 +165,7 @@ const Category = () => {
                                                 setCurrentCategoryId(null);
                                             }}
                                         >
-                                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                            <i className="fa-solid fa-arrow-right-from-bracket"></i>
                                         </button>
                                         <button
                                             type="submit"

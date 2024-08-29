@@ -65,13 +65,14 @@ const SinglePost = () => {
     };
 
     if (!post) {
-        return <div className="flex items-center justify-center h-screen">
-        <div className="relative">
-            <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
-            <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin">
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="relative">
+                    <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
+                    <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin"></div>
+                </div>
             </div>
-        </div>
-      </div>;
+        );
     }
 
     return (
@@ -88,7 +89,9 @@ const SinglePost = () => {
                 <>
                     <div className="mb-8">
                         <h1 className="text-4xl font-bold text-secondary mb-2">{post.title}</h1>
-                        <p className="text-gray-500">Publié par <strong>{post.authorFullName}</strong> le {new Date(post.date).toLocaleDateString()}</p>
+                        <p className="text-gray-500">
+                            Publié par <strong>{post.authorFullName}</strong> le {new Date(post.date).toLocaleDateString()}
+                        </p>
                         {post.author?.id === user?.id && (
                             <div>
                                 <button onClick={handleEdit} className="text-blue-500 mr-4">Modifier</button>
@@ -104,9 +107,21 @@ const SinglePost = () => {
                             {renderContentWithLineBreaks(post.content)}
                         </div>
                     </div>
+                    
+
+                    {/* Section pour ajouter un commentaire ou inviter à se connecter */}
                     <div className="mb-8">
-                        <h2 className="text-3xl font-bold text-secondary mb-4">Commentaires</h2>
-                        <CommentList postId={id} />
+                        {user ? (
+                            <div>
+                                <h2 className="text-3xl font-bold text-secondary mb-4">Commentaires</h2>
+                                <CommentList postId={id} />
+                            </div>
+                        ) : (
+                            <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4">
+                                <p className="font-bold">Connectez-vous pour voir les commentaires</p>
+                                <p>Vous devez être connecté pour pouvoir voir/écrire un commentaire sur cet article.</p>
+                            </div>
+                        )}
                     </div>
                 </>
             )}

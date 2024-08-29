@@ -15,7 +15,6 @@ import Footer from './components/partials/Footer';
 import Error from './components/pages/Error';
 import Account from './components/pages/Account';
 import Category from './components/pages/Category';
-import Budget from './components/pages/Budget';
 import TermsOfService from './components/partials/TermsOfService';
 import Legal from './components/partials/Legal';
 import PrivacyPolicy from './components/partials/PrivacyPolicy';
@@ -51,7 +50,6 @@ function App() {
               <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:id" element={<SinglePost />} />
               <Route path="/categories" element={<PrivateRoute><Category /></PrivateRoute>} />
-              <Route path="/budgets" element={<PrivateRoute><Budget /></PrivateRoute>} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/legal" element={<Legal />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
